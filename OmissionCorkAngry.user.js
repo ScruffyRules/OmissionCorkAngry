@@ -6,6 +6,7 @@
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
 // @match        https://vrchat.com/home*
+// @run-at       document-end
 // @grant        none
 // ==/UserScript==
 
