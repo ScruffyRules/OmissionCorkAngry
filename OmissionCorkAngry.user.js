@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.04
+// @version      0.05
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -49,7 +49,10 @@
         let userInfo = window.vrcse.userInfo;
         console.log(`VRCSE Authed ${userInfo.id} - ${userInfo.username} - ${userInfo.displayName}`);
         let c_div = document.createElement("div");
-        c_div.innerHTML = "<h4>VRCSE</h4>v0.04";
+        c_div.innerHTML = "<h4>VRCSE</h4>";
+        if (typeof GM_info !== 'undefined') {
+            c_div.innerHTML += "v"+GM_info.script.version;
+        }
         c_div.className = "mt-1";
         let goodshit = document.getElementsByClassName("d-none d-lg-block fixed-top bg-gradient-secondary leftbar col-2")[0].getElementsByClassName("usercard")[0].children[0];
         goodshit.insertBefore(c_div, goodshit.children[1]);
