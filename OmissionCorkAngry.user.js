@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.03
+// @version      0.04
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -48,11 +48,11 @@
     function onceAuthed(elem) {
         let userInfo = window.vrcse.userInfo;
         console.log(`VRCSE Authed ${userInfo.id} - ${userInfo.username} - ${userInfo.displayName}`);
-        let c_h = document.createElement("h4");
-        c_h.innerText = "VRCSE";
-        c_h.className = "mt-1 text-center";
+        let c_div = document.createElement("div");
+        c_div.innerHTML = "<h4>VRCSE</h4>v0.04";
+        c_div.className = "mt-1";
         let goodshit = document.getElementsByClassName("d-none d-lg-block fixed-top bg-gradient-secondary leftbar col-2")[0].getElementsByClassName("usercard")[0].children[0];
-        goodshit.insertBefore(c_h, goodshit.children[1]);
+        goodshit.insertBefore(c_div, goodshit.children[1]);
         runChecks();
     }
 
@@ -165,6 +165,8 @@
                     if (butts.length == 1) { // In theory this should never be 0 but uhh somehow it happens!
                         butts[0].remove();
                         elem.className = elem.className.replace("customReqInvCheckButtonDone", "").replace("  ", " ");
+                    } else {
+                        debugger;
                     }
                 }
                 elem = loctitle[0];
@@ -180,8 +182,13 @@
                 let worldId = getQueryVariable(query, "worldId");
                 let instanceId = getQueryVariable(query, "instanceId");
                 if (elem.className.includes("customInvCheckButtonDone")) {
-                    elem.getElementsByTagName("button")[0].value = worldId + ":" + instanceId;
-                    elem.getElementsByTagName("button")[0].title = title;
+                    let butts = elem.getElementsByTagName("button");
+                    if (butts.length == 1) {
+                        butts[0].value = worldId + ":" + instanceId;
+                        butts[0].title = title;
+                    } else {
+                        debugger;
+                    }
                     continue;
                 }
                 let btn_c = document.createElement("button");
