@@ -160,6 +160,13 @@
             if (elem.children.length == 1) continue; // Offline
             let loctitle = elem.children[1].getElementsByClassName("location-title");
             if (loctitle.length == 1) { // public
+                if (elem.className.includes("customReqInvCheckButtonDone")) {
+                    let butts = elem.children[1].children[0].getElementsByTagName("button");
+                    if (butts.length == 1) { // In theory this should never be 0 but uhh somehow it happens!
+                        butts[0].remove();
+                        elem.className = elem.className.replace("customReqInvCheckButtonDone", "").replace("  ", " ");
+                    }
+                }
                 elem = loctitle[0];
                 let atag = null;
                 if (elem.children.length >= 2) {
