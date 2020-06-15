@@ -1,11 +1,13 @@
 // ==UserScript==
-// @name         VRChat Site Enchanted
+// @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
 // @version      0.02
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
 // @match        https://vrchat.com/home*
+// @match        https://www.vrchat.com/home/*
+// @match        https://www.vrchat.com/home*
 // @run-at       document-end
 // @grant        none
 // ==/UserScript==
@@ -102,6 +104,13 @@
         sendInv(this.value, window.vrcse.inv2mePromptWorldInstance, window.vrcse.inv2mePromptMessage);
     }
 
+    function onClickSendReqInv() {
+        let xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("POST", "/api/1/user/" + this.value + "/notification");
+        xmlhttp.setRequestHeader("Content-Type", "application/json");
+        xmlhttp.send(JSON.stringify({"type":"requestInvite", "message":""}));
+    }
+
     function runCheckForInvMeButton() {
         let loccont = document.getElementsByClassName("location-container")[0];
         if (loccont != undefined) {
@@ -145,33 +154,48 @@
             elem.children[0].appendChild(btn_c);
         }
         let frencont = document.getElementsByClassName("friend-container")[0];
-        let elems = frencont.getElementsByClassName("location-title");
+        let elems = frencont.getElementsByClassName("usercard");
         for (let i=0; i<elems.length; i++) {
             let elem = elems[i];
-            let atag = null;
-            if (elem.children.length == 2) {
-                atag = elem.children[1];
-            } else {
-                atag = elem.children[0];
+            if (elem.children.length == 1) continue; // Offline
+            let loctitle = elem.children[1].getElementsByClassName("location-title");
+            if (loctitle.length == 1) { // public
+                elem = loctitle[0];
+                let atag = null;
+                if (elem.children.length >= 2) {
+                    atag = elem.children[1];
+                } else {
+                    atag = elem.children[0];
+                }
+                if (atag.tagName != "A") continue;
+                let title = atag.title;
+                let query = atag.href.split("?")[1];
+                let worldId = getQueryVariable(query, "worldId");
+                let instanceId = getQueryVariable(query, "instanceId");
+                if (elem.className.includes("customInvCheckButtonDone")) {
+                    elem.getElementsByTagName("button")[0].value = worldId + ":" + instanceId;
+                    elem.getElementsByTagName("button")[0].title = title;
+                    continue;
+                }
+                let btn_c = document.createElement("button");
+                btn_c.className = "btn btn-outline-primary p-1";
+                btn_c.innerText = "Inv";
+                btn_c.value = worldId + ":" + instanceId;
+                btn_c.title = title;
+                btn_c.onclick = onClickSendInv;
+                elem.className += " customInvCheckButtonDone";
+                elem.appendChild(btn_c);
+            } else { // private
+                if (elem.className.includes("customReqInvCheckButtonDone")) continue;
+                let btn_c = document.createElement("button");
+                btn_c.className = "btn btn-outline-primary p-1 ml-1";
+                btn_c.innerText = "ReqInv";
+                let userId = elem.children[0].children[0].children[0].href.replace("https://vrchat.com/home/user/", "");
+                btn_c.value = userId;
+                btn_c.onclick = onClickSendReqInv;
+                elem.className += " customReqInvCheckButtonDone";
+                elem.children[1].children[0].appendChild(btn_c);
             }
-            if (atag.tagName != "A") continue;
-            let title = atag.title;
-            let query = atag.href.split("?")[1];
-            let worldId = getQueryVariable(query, "worldId");
-            let instanceId = getQueryVariable(query, "instanceId");
-            if (elem.className.includes("customInvCheckButtonDone")) {
-                elem.getElementsByTagName("button")[0].value = worldId + ":" + instanceId;
-                elem.getElementsByTagName("button")[0].title = title;
-                continue;
-            }
-            let btn_c = document.createElement("button");
-            btn_c.className = "btn btn-outline-primary p-1";
-            btn_c.innerText = "Inv";
-            btn_c.value = worldId + ":" + instanceId;
-            btn_c.title = title;
-            btn_c.onclick = onClickSendInv;
-            elem.className += " customInvCheckButtonDone";
-            elem.appendChild(btn_c);
         }
     }
 
