@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.02
+// @version      0.03
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
