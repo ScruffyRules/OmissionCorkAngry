@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.061
+// @version      0.062
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -226,7 +226,7 @@
                 let elem = userinfos[i];
                 if (elem.className.includes("customInv2MeCheckButtonDone")) continue;
                 let atag = elem.children[0].children[0];
-                let userId = atag.href.replace("https://vrchat.com/home/user/", "");
+                let userId = atag.href.replace(window.location.origin + "/home/user/", "");
                 let btn_c = document.createElement("button");
                 btn_c.className = "btn btn-outline-primary ml-1 mt-n1 p-1";
                 btn_c.innerText = "SendInv";
@@ -291,7 +291,7 @@
                 let btn_c = document.createElement("button");
                 btn_c.className = "btn btn-outline-primary p-1 ml-1";
                 btn_c.innerText = "ReqInv";
-                let userId = elem.children[0].children[0].children[0].href.replace("https://vrchat.com/home/user/", "");
+                let userId = elem.children[0].children[0].children[0].href.replace(window.location.origin + "/home/user/", "");
                 btn_c.value = userId;
                 btn_c.onclick = onClickSendReqInv;
                 elem.className += " customReqInvCheckButtonDone";
@@ -333,7 +333,7 @@
 
     function avatarDetails() {
         let atag = document.getElementsByClassName("home-content")[0].getElementsByTagName("A")[1];
-        let avatarId = atag.href.replace("https://vrchat.com/home/avatar/", "");
+        let avatarId = atag.href.replace(window.location.origin + "/home/avatar/", "");
         // Fav
         let btn_c = document.createElement("button");
         btn_c.className = "btn btn-outline-primary p-1 mr-1";
