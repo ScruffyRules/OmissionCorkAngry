@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.075
+// @version      0.08
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -31,12 +31,14 @@
         settings["show.sendinv"] = setDefaultIfNotFound("vrcse.show.sendinv", true);
         settings["show.reqinv"] = setDefaultIfNotFound("vrcse.show.reqinv", true);
         settings["show.instancejoin"] = setDefaultIfNotFound("vrcse.show.instancejoin", true);
+        settings["show.worldandinstanceowners"] = setDefaultIfNotFound("vrcse.show.worldandinstanceowners", false);
         settings["remove.uppercase"] = setDefaultIfNotFound("vrcse.remove.uppercase", true);
         window.vrcse.settings = settings;
         window.vrcse.settings.list = {
             "show.sendinv":"Send Invite Buttons",
             "show.reqinv":"Request Invite Buttons",
             "show.instancejoin":"Join Buttons",
+            "show.worldandinstanceowners":"World and Instance Owners",
             "remove.uppercase":"Remove Uppercase"
         };
     }
@@ -69,6 +71,9 @@
                     window.vrcse.sendinvPromptTimeout = 0;
                     window.vrcse.sendinvUserTimeout = 0;
                     window.vrcse.lastPathname = "";
+                    window.vrcse.userCache = {};
+                    window.vrcse.worldCache = {};
+                    window.vrcse.waioStates = {};
                     onceAuthed();
                 } else {
                     console.log(this);
@@ -159,7 +164,6 @@
             let styleSheet = document.styleSheets[0];
             styleSheet.insertRule("h1, h2, h3, h4, h5, h6 {text-transform: uppercase}");
         }
-        debugger;
         if (!window.vrcse.settings["show.sendinv"]) {
             let sendinvs = document.getElementsByClassName("customSendInvCheckButtonDone");
             for (let i = 0; i < sendinvs.length; i++) {
@@ -196,10 +200,27 @@
                 instancejoins[i].classList.remove("customJoinCheckButtonDone");
             }
         }
+        if (!window.vrcse.settings["show.worldandinstanceowners"]) {
+            let loccont = document.getElementsByClassName("location-container")[0];
+            if (loccont != undefined) {
+                let locelems = loccont.getElementsByClassName("location-title");
+                for (let i = 0 ; i < locelems.length; i++) {
+                    let elem = locelems[i];
+                    if (elem.id.startsWith("waio-")) {
+                        for (let j = 0 ; j < elem.children.length; j++) {
+                            if (elem.children[j].id.startsWith("div-waio-")) {
+                                elem.children[j].remove();
+                            }
+                        }
+                        elem.removeAttribute("id");
+                    }
+                }
+            }
+        }
     }
 
     function runChecks() {
-        setInterval(buttonChecker, 750);
+        setInterval(contentChecker, 750);
         setInterval(onHrefChange, 750);
         //setInterval(getUserData, 30*1000);
     }
@@ -265,32 +286,149 @@
         xmlhttp.send(JSON.stringify({"type":"requestInvite", "message":""}));
     }
 
-    function buttonChecker() {
-        let loccont = document.getElementsByClassName("location-container")[0];
-        if (window.vrcse.settings["show.instancejoin"] && loccont != undefined) {
-            let elems = loccont.getElementsByClassName("location-title");
-            for (let i=0; i<elems.length; i++) {
-                let elem = elems[i];
-                if (elem.classList.contains("customJoinCheckButtonDone")) continue;
-                let atag = null;
-                if (elem.children.length == 2) {
-                    atag = elem.children[1];
-                } else {
-                    atag = elem.children[0];
+    var instanceTypes = ["private", "friends", "hidden"];
+    function parseInstance(wrldId) {
+        let worldId = wrldId;
+        let instanceType = "public";
+        let ownerId = undefined;
+        if (wrldId.includes(":")) {
+            worldId = wrldId.split(":")[0];
+            let instance = wrldId.split(":")[1];
+            if (instance.includes("~")) {
+                let things = instance.split("~");
+                let canReqInv = false;
+                let inst_type = undefined;
+                things.forEach(item => {
+                    if (item.includes("(")) {
+                        let first = item.split("(")[0];
+                        let second = item.split("(")[1];
+                        if (instanceTypes.includes(first)) {
+                            ownerId = second.substring(0, second.length-1);
+                            inst_type = first;
+                        }
+                        if (first == "canRequestInvite") canReqInv = true;
+                    }
+                    if (item == "canRequestInvite") canReqInv = true;
+                });
+                if (inst_type == "hidden") {
+                    instanceType = "friendsPlus";
+                } else if (inst_type == "friends") {
+                    instanceType = "friends";
+                } else if (inst_type == "private") {
+                    instanceType = canReqInv ? "invitePlus" : "invite";
                 }
-                if (atag.tagName != "A") continue;
-                let title = atag.title;
-                let query = atag.href.split("?")[1];
-                let worldId = getQueryVariable(query, "worldId");
-                let instanceId = getQueryVariable(query, "instanceId");
-                let btn_c = document.createElement("button");
-                btn_c.className = "btn btn-outline-primary pt-0 pb-0 pl-1 pr-1";
-                btn_c.innerText = "Join";
-                btn_c.value = worldId + ":" + instanceId;
-                btn_c.title = title;
-                btn_c.onclick = onClickJoin;
-                elem.appendChild(btn_c);
-                elem.classList.add("customJoinCheckButtonDone");
+            }
+        }
+        return {"worldId":worldId,"instanceType":instanceType,"ownerId":ownerId}
+    }
+
+    function contentChecker() {
+        let loccont = document.getElementsByClassName("location-container")[0];
+        if (loccont != undefined) {
+            if (window.vrcse.settings["show.worldandinstanceowners"] || window.vrcse.settings["show.instancejoin"]) {
+                let locelems = loccont.getElementsByClassName("location-title");
+                for (let i=0; i<locelems.length; i++) {
+                    let elem = locelems[i];
+                    let atag = null;
+                    if (elem.children.length >= 2) {
+                        atag = elem.children[1];
+                    } else {
+                        atag = elem.children[0];
+                    }
+                    if (atag.tagName != "A") continue;
+                    let title = atag.title;
+                    let query = atag.href.split("?")[1];
+                    let worldId = getQueryVariable(query, "worldId");
+                    let instanceId = getQueryVariable(query, "instanceId");
+
+                    if (window.vrcse.settings["show.instancejoin"]) {
+                        if (!elem.classList.contains("customJoinCheckButtonDone")) {
+                            let btn_c = document.createElement("button");
+                            btn_c.className = "btn btn-outline-primary pt-0 pb-0 pl-1 pr-1";
+                            btn_c.innerText = "Join";
+                            btn_c.value = worldId + ":" + instanceId;
+                            btn_c.title = title;
+                            btn_c.onclick = onClickJoin;
+                            elem.appendChild(btn_c);
+                            elem.classList.add("customJoinCheckButtonDone");
+                        }
+                    }
+
+                    if (window.vrcse.settings["show.worldandinstanceowners"]) {
+                        if (!elem.id.startsWith("waio-")) {
+                            let randomThing = Math.random().toString(36).substring(2, 15);
+                            elem.id = "waio-" + randomThing;
+                            window.vrcse.waioStates[elem.id] = {"world":0,"instance":0,"data":{"world":null,"wid":null,"instance":null,"iid":null}};
+                            if (!window.vrcse.worldCache.hasOwnProperty(worldId)) {
+                                let xmlhttp = new XMLHttpRequest();
+                                xmlhttp.open("GET", "/api/1/worlds/" + worldId + "?returnKey=" + elem.id);
+                                xmlhttp.send();
+                                xmlhttp.onreadystatechange = function () {
+                                    if (this.readyState == 4) {
+                                        if (this.status == 200) {
+                                            let randomThing = this.responseURL.split("?returnKey=")[1];
+                                            let world = JSON.parse(this.responseText);
+                                            delete world.unityPackages;
+                                            delete world.instances;
+                                            window.vrcse.worldCache[world.id] = world;
+                                            window.vrcse.waioStates[randomThing].data.world = world.authorName;
+                                            window.vrcse.waioStates[randomThing].data.wid = world.authorId;
+                                            window.vrcse.waioStates[randomThing].world = -1;
+                                        }
+                                    }
+                                }
+                            } else {
+                                window.vrcse.waioStates[elem.id].data.world = window.vrcse.worldCache[worldId].authorName;
+                                window.vrcse.waioStates[elem.id].data.wid = window.vrcse.worldCache[worldId].authorId;
+                                window.vrcse.waioStates[elem.id].world = -1;
+                            }
+                            let parsedInstance = parseInstance("ignoreme:" + instanceId);
+                            if (parsedInstance.instanceType != "public") {
+                                let ownerId = parsedInstance.ownerId;
+                                if (!window.vrcse.userCache.hasOwnProperty(ownerId)) {
+                                    let xmlhttp = new XMLHttpRequest();
+                                    xmlhttp.open("GET", "/api/1/users/" + ownerId + "?returnKey=" + elem.id);
+                                    xmlhttp.send();
+                                    xmlhttp.onreadystatechange = function () {
+                                        if (this.readyState == 4) {
+                                            if (this.status == 200) {
+                                                let randomThing = this.responseURL.split("?returnKey=")[1];
+                                                let user = JSON.parse(this.responseText);
+                                                delete user.tags;
+                                                delete user.bio;
+                                                window.vrcse.userCache[user.id] = user;
+                                                window.vrcse.waioStates[randomThing].data.instance = user.displayName;
+                                                window.vrcse.waioStates[randomThing].data.iid = user.id;
+                                                window.vrcse.waioStates[randomThing].instance = -1;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    window.vrcse.waioStates[elem.id].data.instance = window.vrcse.userCache[ownerId].displayName;
+                                    window.vrcse.waioStates[elem.id].data.iid = ownerId;
+                                    window.vrcse.waioStates[elem.id].instance = -1;
+                                }
+                            } else {
+                                window.vrcse.waioStates[elem.id].data.instance = "PUBLIC";
+                                window.vrcse.waioStates[elem.id].instance = -1;
+                            }
+                        }
+                        if (window.vrcse.waioStates.hasOwnProperty(elem.id)) {
+                            let waioState = window.vrcse.waioStates[elem.id];
+                            if (waioState.world == -1 && waioState.instance == -1) {
+                                let div_c = document.createElement("div");
+                                div_c.id = "div-" + elem.id;
+                                div_c.className = "d-block font-weight-normal";
+                                div_c.innerHTML = `World Owner : <a href="/home/user/${waioState.data.wid}" style="color: #0e9bb1;">${waioState.data.world}</a>`;
+                                if (waioState.data.instance != "PUBLIC") {
+                                    div_c.innerHTML += ` / Instance Owner : <a href="/home/user/${waioState.data.iid}" style="color: #0e9bb1;">${waioState.data.instance}</a>`;
+                                }
+                                delete window.vrcse.waioStates[elem.id];
+                                elem.appendChild(div_c);
+                            }
+                        }
+                    }
+                }
             }
         }
         if (window.vrcse.settings["show.sendinv"]) {
