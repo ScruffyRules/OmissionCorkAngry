@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.074
+// @version      0.075
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -66,8 +66,8 @@
                 if (this.status == 200) {
                     window.vrcse = {};
                     window.vrcse.userInfo = JSON.parse(this.responseText);
-                    window.vrcse.inv2mePromptTimeout = 0;
-                    window.vrcse.inv2meUserTimeout = 0;
+                    window.vrcse.sendinvPromptTimeout = 0;
+                    window.vrcse.sendinvUserTimeout = 0;
                     window.vrcse.lastPathname = "";
                     onceAuthed();
                 } else {
@@ -161,7 +161,7 @@
         }
         debugger;
         if (!window.vrcse.settings["show.sendinv"]) {
-            let sendinvs = document.getElementsByClassName("customInv2MeCheckButtonDone");
+            let sendinvs = document.getElementsByClassName("customSendInvCheckButtonDone");
             for (let i = 0; i < sendinvs.length; i++) {
                 let butts = sendinvs[i].getElementsByTagName("button");
                 if (butts.length == 1) {
@@ -169,7 +169,7 @@
                 }
             }
             for (let i = 0; i < sendinvs.length; i++) {
-                sendinvs[i].classList.remove("customInv2MeCheckButtonDone");
+                sendinvs[i].classList.remove("customSendInvCheckButtonDone");
             }
         }
         if (!window.vrcse.settings["show.reqinv"]) {
@@ -234,27 +234,27 @@
         console.log('Query variable %s not found', variable);
     }
 
-    function onClickSendInv() {
+    function onClickJoin() {
         sendInv(window.vrcse.userInfo.id, this.value, this.title);
     }
 
-    function onClickSendInv2Me() {
+    function onClickSendInv() {
         if (window.vrcse.user.isFriend && false) { // wanna rewrite this
             sendInv(this.value, window.vrcse.user.location, "here");
         } else {
-            if (Date.now() > window.vrcse.inv2mePromptTimeout + 30000) { // should be 30 seconds
-                window.vrcse.inv2mePromptWorldInstance = prompt("VRChat Launch Link OR wrld_id:instance_id");
-                if (window.vrcse.inv2mePromptWorldInstance == "" || window.vrcse.inv2mePromptWorldInstance == null) return;
-                if (window.vrcse.inv2mePromptWorldInstance.startsWith(window.location.origin + "/home/launch")) {
-                    let query = window.vrcse.inv2mePromptWorldInstance.split("?")[1];
+            if (Date.now() > window.vrcse.sendinvPromptTimeout + 30000) { // should be 30 seconds
+                window.vrcse.sendinvPromptWorldInstance = prompt("VRChat Launch Link OR wrld_id:instance_id");
+                if (window.vrcse.sendinvPromptWorldInstance == "" || window.vrcse.sendinvPromptWorldInstance == null) return;
+                if (window.vrcse.sendinvPromptWorldInstance.startsWith(window.location.origin + "/home/launch")) {
+                    let query = window.vrcse.sendinvPromptWorldInstance.split("?")[1];
                     let worldId = getQueryVariable(query, "worldId");
                     let instanceId = getQueryVariable(query, "instanceId");
-                    window.vrcse.inv2mePromptWorldInstance = worldId + ":" + instanceId;
+                    window.vrcse.sendinvPromptWorldInstance = worldId + ":" + instanceId;
                 }
-                window.vrcse.inv2mePromptMessage = prompt("Message", "here");
-                window.vrcse.inv2mePromptTimeout = Date.now();
+                window.vrcse.sendinvPromptMessage = prompt("Message", "here");
+                window.vrcse.sendinvPromptTimeout = Date.now();
             }
-            sendInv(this.value, window.vrcse.inv2mePromptWorldInstance, window.vrcse.inv2mePromptMessage);
+            sendInv(this.value, window.vrcse.sendinvPromptWorldInstance, window.vrcse.sendinvPromptMessage);
         }
     }
 
@@ -288,7 +288,7 @@
                 btn_c.innerText = "Join";
                 btn_c.value = worldId + ":" + instanceId;
                 btn_c.title = title;
-                btn_c.onclick = onClickSendInv;
+                btn_c.onclick = onClickJoin;
                 elem.appendChild(btn_c);
                 elem.classList.add("customJoinCheckButtonDone");
             }
@@ -297,15 +297,15 @@
             let userinfos = document.getElementsByClassName("user-info");
             for (let i=0; i<userinfos.length; i++) {
                 let elem = userinfos[i];
-                if (elem.classList.contains("customInv2MeCheckButtonDone")) continue;
+                if (elem.classList.contains("customSendInvCheckButtonDone")) continue;
                 let atag = elem.children[0].children[0];
                 let userId = atag.href.replace(window.location.origin + "/home/user/", "");
                 let btn_c = document.createElement("button");
                 btn_c.className = "btn btn-outline-primary ml-1 mt-n1 pt-0 pb-0 pl-1 pr-1";
                 btn_c.innerText = "SendInv";
                 btn_c.value = userId;
-                btn_c.onclick = onClickSendInv2Me;
-                elem.classList.add("customInv2MeCheckButtonDone");
+                btn_c.onclick = onClickSendInv;
+                elem.classList.add("customSendInvCheckButtonDone");
                 elem.children[0].appendChild(btn_c);
             }
         }
