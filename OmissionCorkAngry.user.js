@@ -481,10 +481,8 @@
                     if (butts.length == 1) {
                         butts[0].value = worldId + ":" + instanceId;
                         butts[0].title = title;
-                    } else {
-                        debugger;
+                        continue;
                     }
-                    continue;
                 }
                 let btn_c = document.createElement("button");
                 btn_c.className = "btn btn-outline-primary p-1";
