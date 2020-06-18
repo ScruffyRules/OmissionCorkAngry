@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.062
+// @version      0.074
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -28,16 +28,24 @@
 
     function loadSettings() {
         let settings = {};
-        settings.show = {};
-        settings.show.sendinv = setDefaultIfNotFound("vrcse.show.sendinv", true);
-        settings.show.reqinv = setDefaultIfNotFound("vrcse.show.reqinv", true);
-        settings.show.instanceinv = setDefaultIfNotFound("vrcse.show.instanceinv", true);
+        settings["show.sendinv"] = setDefaultIfNotFound("vrcse.show.sendinv", true);
+        settings["show.reqinv"] = setDefaultIfNotFound("vrcse.show.reqinv", true);
+        settings["show.instancejoin"] = setDefaultIfNotFound("vrcse.show.instancejoin", true);
+        settings["remove.uppercase"] = setDefaultIfNotFound("vrcse.remove.uppercase", true);
         window.vrcse.settings = settings;
-        window.vrcse.settings.list = [
-            "vrcse.show.sendinv",
-            "vrcse.show.reqinv",
-            "vrcse.show.instanceinv"
-            ];
+        window.vrcse.settings.list = {
+            "show.sendinv":"Send Invite Buttons",
+            "show.reqinv":"Request Invite Buttons",
+            "show.instancejoin":"Join Buttons",
+            "remove.uppercase":"Remove Uppercase"
+        };
+    }
+
+    function saveSettings() {
+        let keys = Object.keys(window.vrcse.settings.list);
+        for (let i = 0; i < keys.length; i++) {
+            GM_setValue("vrcse." + keys[i], window.vrcse.settings[keys[i]]);
+        }
     }
 
     function checkIfLoaded() {
@@ -87,7 +95,7 @@
 
     function onceRequested() {
         loadSettings();
-        debugger;
+        //debugger;
         let userInfo = window.vrcse.userInfo;
         console.log(`VRCSE Authed ${userInfo.id} - ${userInfo.username} - ${userInfo.displayName}`);
         let c_div = document.createElement("div");
@@ -98,7 +106,8 @@
         c_div.className = "mt-1";
         let goodshit = document.getElementsByClassName("d-none d-lg-block fixed-top bg-gradient-secondary leftbar col-2")[0].getElementsByClassName("usercard")[0].children[0];
         goodshit.insertBefore(c_div, goodshit.children[1]);
-        /*
+
+        // Settings Button
         let profilelink = document.getElementsByClassName("profile-link")[0];
         profilelink.children[0].classList.remove("d-block");
         let vrcse_settings_btn = profilelink.children[0].cloneNode(true);
@@ -114,7 +123,8 @@
             return false;
         }
         profilelink.appendChild(vrcse_settings_btn);
-        */
+        // The Runs
+        settingsBasedGoodies();
         runChecks();
     }
 
@@ -131,8 +141,65 @@
         }
     }
 
+    function settingsBasedGoodies() {
+        if (window.vrcse.settings["remove.uppercase"]) {
+            let styleSheet = document.styleSheets[0];
+            for (var i = 0; i < styleSheet.cssRules.length; i++) {
+                if (styleSheet.cssRules[i].selectorText != undefined) {
+                    if (styleSheet.cssRules[i].selectorText == "h1, h2, h3, h4, h5, h6") {
+                        for (var j = 0; j < styleSheet.cssRules[i].style.length; j++) {
+                            if (styleSheet.cssRules[i].style[j] == "text-transform") {
+                                styleSheet.cssRules[i].style.removeProperty("text-transform");
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            let styleSheet = document.styleSheets[0];
+            styleSheet.insertRule("h1, h2, h3, h4, h5, h6 {text-transform: uppercase}");
+        }
+        debugger;
+        if (!window.vrcse.settings["show.sendinv"]) {
+            let sendinvs = document.getElementsByClassName("customInv2MeCheckButtonDone");
+            for (let i = 0; i < sendinvs.length; i++) {
+                let butts = sendinvs[i].getElementsByTagName("button");
+                if (butts.length == 1) {
+                    butts[0].remove();
+                }
+            }
+            for (let i = 0; i < sendinvs.length; i++) {
+                sendinvs[i].classList.remove("customInv2MeCheckButtonDone");
+            }
+        }
+        if (!window.vrcse.settings["show.reqinv"]) {
+            let reqinvs = document.getElementsByClassName("customReqInvCheckButtonDone");
+            for (let i = 0; i < reqinvs.length; i++) {
+                let butts = reqinvs[i].children[1].getElementsByTagName("button");
+                if (butts.length == 1) {
+                    butts[0].remove();
+                }
+            }
+            for (let i = 0; i < reqinvs.length; i++) {
+                reqinvs[i].classList.remove("customReqInvCheckButtonDone");
+            }
+        }
+        if (!window.vrcse.settings["show.instancejoin"]) {
+            let instancejoins = document.getElementsByClassName("customJoinCheckButtonDone");
+            for (let i = 0; i < instancejoins.length; i++) {
+                let butts = instancejoins[i].getElementsByTagName("button");
+                if (butts.length == 1) {
+                    butts[0].remove();
+                }
+            }
+            for (let i = 0; i < instancejoins.length; i++) {
+                instancejoins[i].classList.remove("customJoinCheckButtonDone");
+            }
+        }
+    }
+
     function runChecks() {
-        setInterval(runCheckForInvMeButton, 750);
+        setInterval(buttonChecker, 750);
         setInterval(onHrefChange, 750);
         //setInterval(getUserData, 30*1000);
     }
@@ -176,8 +243,14 @@
             sendInv(this.value, window.vrcse.user.location, "here");
         } else {
             if (Date.now() > window.vrcse.inv2mePromptTimeout + 30000) { // should be 30 seconds
-                window.vrcse.inv2mePromptWorldInstance = prompt("World:Instance?");
+                window.vrcse.inv2mePromptWorldInstance = prompt("VRChat Launch Link OR wrld_id:instance_id");
                 if (window.vrcse.inv2mePromptWorldInstance == "" || window.vrcse.inv2mePromptWorldInstance == null) return;
+                if (window.vrcse.inv2mePromptWorldInstance.startsWith(window.location.origin + "/home/launch")) {
+                    let query = window.vrcse.inv2mePromptWorldInstance.split("?")[1];
+                    let worldId = getQueryVariable(query, "worldId");
+                    let instanceId = getQueryVariable(query, "instanceId");
+                    window.vrcse.inv2mePromptWorldInstance = worldId + ":" + instanceId;
+                }
                 window.vrcse.inv2mePromptMessage = prompt("Message", "here");
                 window.vrcse.inv2mePromptTimeout = Date.now();
             }
@@ -192,13 +265,13 @@
         xmlhttp.send(JSON.stringify({"type":"requestInvite", "message":""}));
     }
 
-    function runCheckForInvMeButton() {
+    function buttonChecker() {
         let loccont = document.getElementsByClassName("location-container")[0];
-        if (window.vrcse.settings.show.instanceinv && loccont != undefined) {
+        if (window.vrcse.settings["show.instancejoin"] && loccont != undefined) {
             let elems = loccont.getElementsByClassName("location-title");
             for (let i=0; i<elems.length; i++) {
                 let elem = elems[i];
-                if (elem.className.includes("customInvCheckButtonDone")) continue;
+                if (elem.classList.contains("customJoinCheckButtonDone")) continue;
                 let atag = null;
                 if (elem.children.length == 2) {
                     atag = elem.children[1];
@@ -211,28 +284,28 @@
                 let worldId = getQueryVariable(query, "worldId");
                 let instanceId = getQueryVariable(query, "instanceId");
                 let btn_c = document.createElement("button");
-                btn_c.className = "btn btn-outline-primary p-1";
-                btn_c.innerText = "Inv";
+                btn_c.className = "btn btn-outline-primary pt-0 pb-0 pl-1 pr-1";
+                btn_c.innerText = "Join";
                 btn_c.value = worldId + ":" + instanceId;
                 btn_c.title = title;
                 btn_c.onclick = onClickSendInv;
-                elem.className += " customInvCheckButtonDone";
                 elem.appendChild(btn_c);
+                elem.classList.add("customJoinCheckButtonDone");
             }
         }
-        if (window.vrcse.settings.show.sendinv) {
+        if (window.vrcse.settings["show.sendinv"]) {
             let userinfos = document.getElementsByClassName("user-info");
             for (let i=0; i<userinfos.length; i++) {
                 let elem = userinfos[i];
-                if (elem.className.includes("customInv2MeCheckButtonDone")) continue;
+                if (elem.classList.contains("customInv2MeCheckButtonDone")) continue;
                 let atag = elem.children[0].children[0];
                 let userId = atag.href.replace(window.location.origin + "/home/user/", "");
                 let btn_c = document.createElement("button");
-                btn_c.className = "btn btn-outline-primary ml-1 mt-n1 p-1";
+                btn_c.className = "btn btn-outline-primary ml-1 mt-n1 pt-0 pb-0 pl-1 pr-1";
                 btn_c.innerText = "SendInv";
                 btn_c.value = userId;
                 btn_c.onclick = onClickSendInv2Me;
-                elem.className += " customInv2MeCheckButtonDone";
+                elem.classList.add("customInv2MeCheckButtonDone");
                 elem.children[0].appendChild(btn_c);
             }
         }
@@ -243,16 +316,14 @@
             if (elem.children.length == 1) continue; // Offline
             let loctitle = elem.children[1].getElementsByClassName("location-title");
             if (loctitle.length == 1) { // public
-                if (!window.vrcse.settings.show.instanceinv) continue;
-                if (elem.className.includes("customReqInvCheckButtonDone")) {
+                if (!window.vrcse.settings["show.instancejoin"]) continue;
+                if (elem.classList.contains("customReqInvCheckButtonDone")) {
                     let butts = elem.children[1].children[0].getElementsByTagName("button");
-                    if (butts.length == 1) { // In theory this should never be 0 but uhh somehow it happens!
+                    if (butts.length == 1) {
                         butts[0].remove();
-                        elem.className = elem.className.replace("customReqInvCheckButtonDone", "").replace("  ", " ");
+                        elem.classList.remove("customReqInvCheckButtonDone");
                     } else {
-                        let yeet = elem.children[1].children[0];
-                        console.log(yeet);
-                        debugger;
+                        elem.classList.remove("customReqInvCheckButtonDone");
                     }
                 }
                 let elem2 = loctitle[0];
@@ -267,7 +338,7 @@
                 let query = atag.href.split("?")[1];
                 let worldId = getQueryVariable(query, "worldId");
                 let instanceId = getQueryVariable(query, "instanceId");
-                if (elem2.className.includes("customInvCheckButtonDone")) {
+                if (elem2.classList.contains("customJoinCheckButtonDone")) {
                     let butts = elem2.getElementsByTagName("button");
                     if (butts.length == 1) {
                         butts[0].value = worldId + ":" + instanceId;
@@ -279,22 +350,26 @@
                 }
                 let btn_c = document.createElement("button");
                 btn_c.className = "btn btn-outline-primary p-1";
-                btn_c.innerText = "Inv";
+                btn_c.innerText = "Join";
                 btn_c.value = worldId + ":" + instanceId;
                 btn_c.title = title;
                 btn_c.onclick = onClickSendInv;
-                elem2.className += " customInvCheckButtonDone";
+                elem2.classList.add("customJoinCheckButtonDone");
                 elem2.appendChild(btn_c);
             } else { // private
-                if (!window.vrcse.settings.show.reqinv) continue;
-                if (elem.className.includes("customReqInvCheckButtonDone")) continue;
+                if (!window.vrcse.settings["show.reqinv"]) continue;
+                if (elem.classList.contains("customReqInvCheckButtonDone")) continue;
                 let btn_c = document.createElement("button");
-                btn_c.className = "btn btn-outline-primary p-1 ml-1";
+                btn_c.className = "btn btn-outline-primary ml-1 pt-0 pb-0 pl-1 pr-1";
                 btn_c.innerText = "ReqInv";
                 let userId = elem.children[0].children[0].children[0].href.replace(window.location.origin + "/home/user/", "");
                 btn_c.value = userId;
                 btn_c.onclick = onClickSendReqInv;
-                elem.className += " customReqInvCheckButtonDone";
+                elem.classList.add("customReqInvCheckButtonDone");
+                if (elem.children[1].children[0] == undefined) {
+                    debugger;
+                    continue;
+                }
                 elem.children[1].children[0].appendChild(btn_c);
             }
         }
@@ -378,20 +453,44 @@
         div_c.className = "vrcse";
         div_c.innerHTML += "<h2>VRChat Site Enhanced Settings</h2>";
         div_c.innerHTML += "<h5></h5>";
-        for (let i = 0; i < window.vrcse.settings.list.length;i++) {
-            let setting = window.vrcse.settings.list[i];
-            let val = GM_getValue(setting);
+        let form_c = document.createElement("form");
+        form_c.id = "vrcse.form.settings";
+        div_c.appendChild(form_c);
+        let keys = Object.keys(window.vrcse.settings.list);
+        for (let i = 0; i < keys.length;i++) {
+            let setting = keys[i];
+            let description = window.vrcse.settings.list[setting];
+            let val = GM_getValue("vrcse." + setting);
             switch (typeof val) {
                 case "boolean":
-                    div_c.innerHTML += "<span>" + cleanSettingKey(setting) + " </span>";
-                    div_c.innerHTML += "<input id='" + setting + "' type='checkbox' " + (val ? "checked" : "") + " />";
+                    form_c.innerHTML += '<label for="' + setting + '" class="m-0 d-inline">' + description + ' </span>';
+                    form_c.innerHTML += '<input id="' + setting + '" name=id="' + setting + '" type="checkbox" ' + (val ? "checked" : "") + ' />';
                     break;
                 default:
-                    div_c.innerHTML += `<span>${setting}</span>`;
+                    form_c.innerHTML += `<span>${description}</span>`;
                     break;
             }
-            div_c.innerHTML += "</br>";
+            form_c.innerHTML += '</br>';
         }
+        form_c.innerHTML += '<input id="vrcse.form.settings.submit" type="submit" class="btn btn-primary float-right mt-n5" value="Save">';
         div_c.innerHTML += "<h5></h5>";
+        let submit = document.getElementById("vrcse.form.settings.submit");
+        submit.onclick = function (event) {
+            let form = document.getElementById("vrcse.form.settings");
+            let inputs = form.getElementsByTagName("input");
+            let keys = Object.keys(window.vrcse.settings.list);
+            for (let i = 0; i < inputs.length; i++) {
+                let input = inputs[i];
+                if (keys.includes(input.id)) {
+                    if (input.type == "checkbox") {
+                        window.vrcse.settings[input.id] = input.checked;
+                    }
+                }
+            }
+            saveSettings();
+            settingsBasedGoodies();
+            event.preventDefault();
+            return false;
+        }
     }
 })();
