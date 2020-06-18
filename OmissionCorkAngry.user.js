@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.08
+// @version      0.081
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -490,7 +490,9 @@
                 btn_c.value = worldId + ":" + instanceId;
                 btn_c.title = title;
                 btn_c.onclick = onClickSendInv;
-                elem2.classList.add("customJoinCheckButtonDone");
+                if (!elem2.classList.contains("customJoinCheckButtonDone")) {
+                    elem2.classList.add("customJoinCheckButtonDone");
+                }
                 elem2.appendChild(btn_c);
             } else { // private
                 if (!window.vrcse.settings["show.reqinv"]) continue;
