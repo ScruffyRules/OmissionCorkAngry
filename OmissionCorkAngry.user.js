@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.081
+// @version      0.091
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -11,7 +11,6 @@
 // @run-at       document-end
 // @grant        GM_setValue
 // @grant        GM_getValue
-// @grant        GM_listValues
 // ==/UserScript==
 
 (function() {
@@ -70,6 +69,9 @@
                     window.vrcse.userInfo = JSON.parse(this.responseText);
                     window.vrcse.sendinvPromptTimeout = 0;
                     window.vrcse.sendinvUserTimeout = 0;
+                    // Later? xd
+//                     window.vrcse.privatesTimeout = 0;
+//                     window.vrcse.privatesCache = [];
                     window.vrcse.lastPathname = "";
                     window.vrcse.userCache = {};
                     window.vrcse.worldCache = {};
@@ -231,6 +233,11 @@
         let pathname = location.pathname;
         if (pathname.startsWith("/home/avatar")) {
             setTimeout(avatarDetails, 500);
+        }
+        if (pathname == "/home" || pathname == "/home/locations") {
+            showPrivatesButton();
+        } else {
+            hidePrivatesButton();
         }
     }
 
@@ -485,7 +492,7 @@
                     }
                 }
                 let btn_c = document.createElement("button");
-                btn_c.className = "btn btn-outline-primary p-1";
+                btn_c.className = "btn btn-outline-primary pt-0 pb-0 pl-1 pr-1";
                 btn_c.innerText = "Join";
                 btn_c.value = worldId + ":" + instanceId;
                 btn_c.title = title;
@@ -497,6 +504,7 @@
             } else { // private
                 if (!window.vrcse.settings["show.reqinv"]) continue;
                 if (elem.classList.contains("customReqInvCheckButtonDone")) continue;
+                if (elem.getElementsByClassName("fa-spinner").length == 1) continue; // loading?! idk just VRC things
                 let btn_c = document.createElement("button");
                 btn_c.className = "btn btn-outline-primary ml-1 pt-0 pb-0 pl-1 pr-1";
                 btn_c.innerText = "ReqInv";
@@ -570,17 +578,143 @@
         atag.parentElement.parentElement.appendChild(span_c);
     }
 
-    function cleanSettingKey(setting) {
-        let ret = setting;
-        ret = ret.replace("vrcse.", "");
-        ret = ret.toLowerCase().split(".").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
-        return ret;
+    function getHighestTrustRank(tags) {
+        if (tags.includes("admin_moderator")) {
+            return "moderator";
+        }
+        if (tags.includes("system_trust_veteran")) {
+            return "trusted";
+        }
+        if (tags.includes("system_trust_trusted")) {
+            return "known";
+        }
+        if (tags.includes("system_trust_known")) {
+            return "user";
+        }
+        if (tags.includes("system_trust_basic")) {
+            return "new";
+        }
+        return "vistor";
+    }
+
+    function onClickPrivates() {
+        let content = document.getElementsByClassName("home-content")[0];
+        if (content.children.length > 1) {
+            let butts = content.getElementsByClassName("vrcse.privates");
+            if (butts.length == 1) {
+                butts[0].remove();
+                return;
+            }
+        }
+        let div_c = document.createElement("div");
+        content.insertBefore(div_c, content.children[content.children.length-1]);
+        div_c.className = "vrcse.privates";
+        div_c.innerHTML += "<h3>Friends in Privates</h3>";
+        let content_c = document.createElement("div");
+        content_c.innerText = "Loading...";
+        content_c.id = "vrcse.privates";
+        content_c.className = "css-3ax2ga";
+        div_c.appendChild(content_c);
+
+        // caching?
+        let xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", "/api/1/auth/user/friends?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
+        xmlhttp.send();
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    let content = JSON.parse(this.responseText);
+                    let privates = document.getElementById("vrcse.privates");
+                    privates.innerHTML = "";
+                    for (let i = 0; i < content.length; i++) {
+                        let user = content[i];
+                        if (user.location != "private") continue;
+                        // Yes, I know, this is very bad
+                        privates.innerHTML += `<div class="usercard friend-true size-wide state-online level-${getHighestTrustRank(user.tags)} card mb-1">
+    <div class="row">
+        <div>
+            <a title="online" href="/home/user/${user.id}">
+                <img class="img-thumbnail user-img ml-0" src="${user.currentAvatarThumbnailImageUrl}">
+            </a>
+        </div>
+        <div class="user-info customSendInvCheckButtonDone">
+            <h6>
+                <a href="/home/user/${user.id}">
+                    <span class="css-1lyllzs">
+                        <span class="${user.status.replace(" ", "-")}" title="${user.status}"></span>
+                    </span>${user.displayName}
+                </a>
+                <button class="btn btn-outline-primary ml-1 mt-n1 pt-0 pb-0 pl-1 pr-1 onclickmedaddy" value="${user.id}">ReqInv</button>
+            </h6><!--
+            <p class="offlineOrOnlineOrWhatever">
+                <em>In-World</em>
+            </p>-->
+            <p class="statusDescription">
+                <small>${user.statusDescription}</small>
+            </p>
+        </div>
+    </div>
+</div>`;
+                    }
+                    if (content.length == 100) {
+                        let url = this.responseURL;
+                        if (url.includes("&offset=")) {
+                            let num = url.substring(url.length-3);
+                            num = (parseInt(num) + 100).toString();
+                            url.substring(0, url.length-3) + num;
+                        } else {
+                            url += "&offset=100";
+                        }
+                        this.open("GET", url);
+                        this.send();
+                    }
+                    let onclickmedaddys = document.getElementsByClassName("onclickmedaddy");
+                    for (let i = 0; i < onclickmedaddys.length; i++) {
+                        onclickmedaddys[i].onclick = onClickSendReqInv;
+                    }
+                } else {
+                    let privates = document.getElementById("vrcse.privates");
+                    privates.innerText = this.responseText;
+                }
+            }
+        }
+    }
+
+    function showPrivatesButton() {
+        let homecont = document.getElementsByClassName("home-content")[0];
+        if (homecont.classList.contains("vrcse-privates-button")) return;
+        let btn_c = document.createElement("button");
+        btn_c.className = "btn btn-primary float-right p-1";
+        btn_c.innerText = "Privates";
+        btn_c.title = "Don't spam!";
+        btn_c.onclick = onClickPrivates;
+        homecont.insertBefore(btn_c, homecont.children[0]);
+        homecont.classList.add("vrcse-privates-button");
+    }
+
+    function hidePrivatesButton() {
+        let homecont = document.getElementsByClassName("home-content")[0];
+        if (!homecont.classList.contains("vrcse-privates-button")) return;
+        for (let i = 0; i < homecont.children.length; i++) {
+            if (homecont.children[i].tagName == "BUTTON") {
+                if (homecont.children[i].innerText == "Privates") {
+                    homecont.children[i].remove();
+                }
+            }
+        }
+        if (homecont.children.length > 1) {
+            let butts = homecont.getElementsByClassName("vrcse.privates");
+            if (butts.length == 1) {
+                butts[0].remove();
+            }
+        }
+        homecont.classList.remove("vrcse-privates-button");
     }
 
     function doSettingsPage() {
         let content = document.getElementsByClassName("home-content")[0];
         if (content.children.length > 1) {
-            let butts = content.getElementsByClassName("vrcse");
+            let butts = content.getElementsByClassName("vrcse.settings");
             if (butts.length == 1) {
                 butts[0].remove();
                 return;
@@ -588,7 +722,7 @@
         }
         let div_c = document.createElement("div");
         content.insertBefore(div_c, content.children[0]);
-        div_c.className = "vrcse";
+        div_c.className = "vrcse.settings";
         div_c.innerHTML += "<h2>VRChat Site Enhanced Settings</h2>";
         div_c.innerHTML += "<h5></h5>";
         let form_c = document.createElement("form");
@@ -610,7 +744,7 @@
             }
             form_c.innerHTML += '</br>';
         }
-        form_c.innerHTML += '<input id="vrcse.form.settings.submit" type="submit" class="btn btn-primary float-right mt-n5" value="Save">';
+        form_c.innerHTML += '<input id="vrcse.form.settings.submit" type="submit" class="btn btn-primary float-right mt-n4 pb-1 pt-1" value="Save">';
         div_c.innerHTML += "<h5></h5>";
         let submit = document.getElementById("vrcse.form.settings.submit");
         submit.onclick = function (event) {
