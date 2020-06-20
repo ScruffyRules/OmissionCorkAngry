@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.091
+// @version      0.092
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -609,9 +609,8 @@
         let div_c = document.createElement("div");
         content.insertBefore(div_c, content.children[content.children.length-1]);
         div_c.className = "vrcse.privates";
-        div_c.innerHTML += "<h3>Friends in Privates</h3>";
+        div_c.innerHTML += "<h3>Friends in Privates (LOADING...)</h3>";
         let content_c = document.createElement("div");
-        content_c.innerText = "Loading...";
         content_c.id = "vrcse.privates";
         content_c.className = "css-3ax2ga";
         div_c.appendChild(content_c);
@@ -625,7 +624,6 @@
                 if (this.status == 200) {
                     let content = JSON.parse(this.responseText);
                     let privates = document.getElementById("vrcse.privates");
-                    privates.innerHTML = "";
                     for (let i = 0; i < content.length; i++) {
                         let user = content[i];
                         if (user.location != "private") continue;
@@ -667,6 +665,8 @@
                         }
                         this.open("GET", url);
                         this.send();
+                    } else {
+                        document.getElementById("vrcse.privates").parentElement.children[0].innerText = "Friends in Privates";
                     }
                     let onclickmedaddys = document.getElementsByClassName("onclickmedaddy");
                     for (let i = 0; i < onclickmedaddys.length; i++) {
