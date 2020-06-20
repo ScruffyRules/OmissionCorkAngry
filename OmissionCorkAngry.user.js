@@ -500,7 +500,7 @@
                 btn_c.innerText = "Join";
                 btn_c.value = worldId + ":" + instanceId;
                 btn_c.title = title;
-                btn_c.onclick = onClickSendInv;
+                btn_c.onclick = onClickJoin;
                 if (!elem2.classList.contains("customJoinCheckButtonDone")) {
                     elem2.classList.add("customJoinCheckButtonDone");
                 }
@@ -556,8 +556,30 @@
         }
     }
 
+    function onClickAvatarSelect() {
+        let xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("PUT", "/api/1/avatars/" + this.value + "/select");
+        xmlhttp.send();
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    document.getElementById("_totallyRandomNameForAvatarDetails").innerText = "Avatar Selected!";
+                } else {
+                    document.getElementById("_totallyRandomNameForAvatarDetails").innerText = JSON.parse(this.responseText).error.message;
+                }
+            }
+        }
+    }
+
     function avatarDetails() {
         let atag = document.getElementsByClassName("home-content")[0].getElementsByTagName("A")[1];
+        // Remove dumb darking effect from private avatars and make the lock red and on the left side of the name of the avatar
+        if (atag.parentElement.parentElement.parentElement.parentElement.classList.contains("private")) {
+            atag.parentElement.parentElement.parentElement.parentElement.classList.remove("private");
+            atag.insertBefore(atag.childNodes[1], atag.childNodes[0]);
+            atag.children[0].childNodes[0].remove();
+            atag.children[0].style.color = "#ff5767";
+        }
         let avatarId = atag.href.replace(window.location.origin + "/home/avatar/", "");
         // Fav
         let btn_c = document.createElement("button");
@@ -568,10 +590,18 @@
         atag.parentElement.parentElement.appendChild(btn_c);
         // Unfav
         btn_c = document.createElement("button");
-        btn_c.className = "btn btn-outline-danger p-1";
+        btn_c.className = "btn btn-outline-danger p-1 mr-1";
         btn_c.value = avatarId;
         btn_c.innerText = "Unfavourite";
         btn_c.onclick = onClickAvatarUnfavourite;
+        atag.parentElement.parentElement.appendChild(btn_c);
+        // Select
+        btn_c = document.createElement("button");
+        btn_c.className = "btn btn-outline-info p-1";
+        btn_c.value = avatarId;
+        btn_c.innerText = "Select";
+        btn_c.title = "This will only have an effect on restart";
+        btn_c.onclick = onClickAvatarSelect;
         atag.parentElement.parentElement.appendChild(btn_c);
 
         // new line goes
