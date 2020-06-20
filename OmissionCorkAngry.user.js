@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.092
+// @version      0.096
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -31,6 +31,7 @@
         settings["show.reqinv"] = setDefaultIfNotFound("vrcse.show.reqinv", true);
         settings["show.instancejoin"] = setDefaultIfNotFound("vrcse.show.instancejoin", true);
         settings["show.worldandinstanceowners"] = setDefaultIfNotFound("vrcse.show.worldandinstanceowners", false);
+//         settings["show.worldsize"] = setDefaultIfNotFound("vrcse.show.worldsize", false); // Requires another web request
         settings["remove.uppercase"] = setDefaultIfNotFound("vrcse.remove.uppercase", true);
         window.vrcse.settings = settings;
         window.vrcse.settings.list = {
@@ -238,6 +239,9 @@
             showPrivatesButton();
         } else {
             hidePrivatesButton();
+        }
+        if (pathname == "/home/profile") {
+            doProfileAdditions();
         }
     }
 
@@ -624,9 +628,11 @@
                 if (this.status == 200) {
                     let content = JSON.parse(this.responseText);
                     let privates = document.getElementById("vrcse.privates");
+                    let count = 0;
                     for (let i = 0; i < content.length; i++) {
                         let user = content[i];
                         if (user.location != "private") continue;
+                        count++;
                         // Yes, I know, this is very bad
                         privates.innerHTML += `<div class="usercard friend-true size-wide state-online level-${getHighestTrustRank(user.tags)} card mb-1">
     <div class="row">
@@ -667,6 +673,9 @@
                         this.send();
                     } else {
                         document.getElementById("vrcse.privates").parentElement.children[0].innerText = "Friends in Privates";
+                        if (!this.responseURL.includes("&offset=") && count == 0) {
+                            document.getElementById("vrcse.privates").innerText = "No one!";
+                        }
                     }
                     let onclickmedaddys = document.getElementsByClassName("onclickmedaddy");
                     for (let i = 0; i < onclickmedaddys.length; i++) {
@@ -709,6 +718,107 @@
             }
         }
         homecont.classList.remove("vrcse-privates-button");
+    }
+
+    function doProfileAdditions() {
+        let content = document.getElementsByClassName("home-content")[0];
+        let statusDescription = "";
+        let status = "";
+        let usercard = document.getElementsByClassName("profile-link")[0].parentElement.children[0];
+        let butts = usercard.getElementsByClassName("user-info");
+        if (butts.length == 1) {
+            let userinfo = butts[0]
+            if (userinfo.children[2].innerText != "") {
+                statusDescription = userinfo.children[2].innerText;
+            }
+            status = userinfo.children[0].children[0].children[0].children[0].title;
+        }
+        let hr_c = document.createElement("hr");
+        content.children[0].insertBefore(hr_c, content.children[0].children[3]);
+        let div_c = document.createElement("div");
+        content.children[0].insertBefore(div_c, hr_c);
+        div_c.className = "animated fadeIn card";
+        div_c.innerHTML = `<h3 class="card-header">Status</h3>
+	<div class="card-body">
+		<div>
+			<div class="center-panel">
+				<form>
+					<div class="row">
+						<div class="align-te col-1" style="text-align: right;">
+							<span aria-hidden="true" class="fa fa-id-card-alt fa-2x"></span>
+						</div>
+						<div class="col-10">
+							<div class="row">
+								<select class="form-control" id="vrcse.statusType">
+									<option ${status == "active" ? "selected" : ""} value="active">Active</option>
+									<option ${status == "join me" ? "selected" : ""} value="join me">Join Me</option>
+									<option ${status == "ask me" ? "selected" : ""} value="ask me">Ask Me</option>
+									<option ${status == "busy" ? "selected" : ""} value="busy">Busy</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-4 offset-8">
+							<button id="vrcse.submit.status" class="btn btn-primary btn-block">Change Status</button>
+						</div>
+					</div>
+				</form>
+				<form>
+					<div class="row">
+						<div class="align-te col-1" style="text-align: right;">
+							<span aria-hidden="true" class="fa fa-id-card-alt fa-2x"></span>
+						</div>
+						<div class="col-10">
+							<div class="row">
+								<input type="text" id="vrcse.statusDescription" name="statusDescription" class="form-control" placeholder="${statusDescription == "" ? "Status Description" : statusDescription}" value="${statusDescription}">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-4 offset-8">
+							<button id="vrcse.submit.statusDescription" class="btn btn-primary btn-block">Change Status Description</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>`;
+        document.getElementById("vrcse.submit.status").onclick = function (event) {
+            let val = document.getElementById("vrcse.statusType").value;
+            let xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
+            xmlhttp.setRequestHeader("Content-Type", "application/json");
+            xmlhttp.send(JSON.stringify({"status":val}));
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    if (this.status == 200) {
+                    } else if (this.status != 200) {
+                        alert(this.responseText);
+                    }
+                }
+            }
+            event.preventDefault();
+            return false;
+        }
+        document.getElementById("vrcse.submit.statusDescription").onclick = function (event) {
+            let val = document.getElementById("vrcse.statusDescription").value;
+            let xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
+            xmlhttp.setRequestHeader("Content-Type", "application/json");
+            xmlhttp.send(JSON.stringify({"statusDescription":val}));
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    if (this.status == 200) {
+                        document.getElementById("vrcse.statusDescription").value = "";
+                    } else if (this.status != 200) {
+                        alert(this.responseText);
+                    }
+                }
+            }
+            event.preventDefault();
+            return false;
+        }
     }
 
     function doSettingsPage() {
