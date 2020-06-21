@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.097
+// @version      0.1
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -77,6 +77,7 @@
                     window.vrcse.userCache = {};
                     window.vrcse.worldCache = {};
                     window.vrcse.waioStates = {};
+                    window.vrcse.avatarCache = {};
                     onceAuthed();
                 } else {
                     console.log(this);
@@ -234,6 +235,9 @@
         let pathname = location.pathname;
         if (pathname.startsWith("/home/avatar")) {
             setTimeout(avatarDetails, 500);
+        }
+        if (pathname == "/home/avatars") {
+            setTimeout(doAvatarsAdditions, 500);
         }
         if (pathname == "/home" || pathname == "/home/locations") {
             showPrivatesButton();
@@ -442,9 +446,9 @@
                 }
             }
         }
-        if (window.vrcse.settings["show.sendinv"]) {
-            let userinfos = document.getElementsByClassName("user-info");
-            for (let i=0; i<userinfos.length; i++) {
+        let userinfos = document.getElementsByClassName("user-info");
+        for (let i=0; i<userinfos.length; i++) {
+            if (window.vrcse.settings["show.sendinv"]) {
                 let elem = userinfos[i];
                 if (elem.classList.contains("customSendInvCheckButtonDone")) continue;
                 let atag = elem.children[0].children[0];
@@ -456,6 +460,9 @@
                 btn_c.onclick = onClickSendInv;
                 elem.classList.add("customSendInvCheckButtonDone");
                 elem.children[0].appendChild(btn_c);
+
+                elem.classList.add("mt-1");
+                elem.children[2].classList.add("d-flex");
             }
         }
         let frencont = document.getElementsByClassName("friend-container")[0];
@@ -671,7 +678,7 @@
                 <img class="img-thumbnail user-img ml-0" src="${user.currentAvatarThumbnailImageUrl}">
             </a>
         </div>
-        <div class="user-info customSendInvCheckButtonDone">
+        <div class="user-info customSendInvCheckButtonDone mt-1">
             <h6>
                 <a href="/home/user/${user.id}">
                     <span class="css-1lyllzs">
@@ -683,7 +690,7 @@
             <p class="offlineOrOnlineOrWhatever">
                 <em>In-World</em>
             </p>-->
-            <p class="statusDescription">
+            <p class="statusDescription d-flex">
                 <small>${user.statusDescription}</small>
             </p>
         </div>
@@ -769,51 +776,51 @@
         content.children[0].insertBefore(div_c, hr_c);
         div_c.className = "animated fadeIn card";
         div_c.innerHTML = `<h3 class="card-header">Status</h3>
-	<div class="card-body">
-		<div>
-			<div class="center-panel">
-				<form>
-					<div class="row">
-						<div class="align-te col-1" style="text-align: right;">
-							<span aria-hidden="true" class="fa fa-id-card-alt fa-2x"></span>
-						</div>
-						<div class="col-10">
-							<div class="row">
-								<select class="form-control" id="vrcse.statusType">
-									<option ${status == "active" ? "selected" : ""} value="active">Active</option>
-									<option ${status == "join me" ? "selected" : ""} value="join me">Join Me</option>
-									<option ${status == "ask me" ? "selected" : ""} value="ask me">Ask Me</option>
-									<option ${status == "busy" ? "selected" : ""} value="busy">Busy</option>
-								</select>
-							</div>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-4 offset-8">
-							<button id="vrcse.submit.status" class="btn btn-primary btn-block">Change Status</button>
-						</div>
-					</div>
-				</form>
-				<form>
-					<div class="row">
-						<div class="align-te col-1" style="text-align: right;">
-							<span aria-hidden="true" class="fa fa-id-card-alt fa-2x"></span>
-						</div>
-						<div class="col-10">
-							<div class="row">
-								<input type="text" id="vrcse.statusDescription" name="statusDescription" class="form-control" placeholder="${statusDescription == "" ? "Status Description" : statusDescription}" value="${statusDescription}">
-							</div>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-4 offset-8">
-							<button id="vrcse.submit.statusDescription" class="btn btn-primary btn-block">Change Status Description</button>
-						</div>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>`;
+    <div class="card-body">
+        <div>
+            <div class="center-panel">
+                <form>
+                    <div class="row">
+                        <div class="align-te col-1" style="text-align: right;">
+                            <span aria-hidden="true" class="fa fa-id-card-alt fa-2x"></span>
+                        </div>
+                        <div class="col-10">
+                            <div class="row">
+                                <select class="form-control" id="vrcse.statusType">
+                                    <option ${status == "active" ? "selected" : ""} value="active">Active</option>
+                                    <option ${status == "join me" ? "selected" : ""} value="join me">Join Me</option>
+                                    <option ${status == "ask me" ? "selected" : ""} value="ask me">Ask Me</option>
+                                    <option ${status == "busy" ? "selected" : ""} value="busy">Busy</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 offset-8">
+                            <button id="vrcse.submit.status" class="btn btn-primary btn-block">Change Status</button>
+                        </div>
+                    </div>
+                </form>
+                <form>
+                    <div class="row">
+                        <div class="align-te col-1" style="text-align: right;">
+                            <span aria-hidden="true" class="fa fa-id-card-alt fa-2x"></span>
+                        </div>
+                        <div class="col-10">
+                            <div class="row">
+                                <input type="text" id="vrcse.statusDescription" name="statusDescription" class="form-control" placeholder="${statusDescription == "" ? "Status Description" : statusDescription}" value="${statusDescription}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 offset-8">
+                            <button id="vrcse.submit.statusDescription" class="btn btn-primary btn-block">Change Status Description</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>`;
         document.getElementById("vrcse.submit.status").onclick = function (event) {
             let val = document.getElementById("vrcse.statusType").value;
             let xmlhttp = new XMLHttpRequest();
@@ -849,6 +856,141 @@
             event.preventDefault();
             return false;
         }
+    }
+
+    function doAvatarsAdditions() {
+        let content = document.getElementsByClassName("home-content")[0];
+        let xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", "/api/1/favorites/?type=avatar&n=16");
+        xmlhttp.send();
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    let favs = JSON.parse(this.responseText);
+                    favs.forEach(favEntry => {
+                        let avatarId = favEntry.favoriteId;
+                        let adds = document.getElementById("vrcse.favourite.avatars");
+                        if (!window.vrcse.avatarCache.hasOwnProperty(avatarId)) {
+                            let xmlhttp = new XMLHttpRequest();
+                            xmlhttp.open("GET", "/api/1/avatars/" + avatarId);
+                            xmlhttp.send();
+                            xmlhttp.onreadystatechange = function () {
+                                if (this.readyState == 4) {
+                                    if (this.status == 200) {
+                                        let avatar = JSON.parse(this.responseText);
+                                        delete avatar.unityPackages;
+                                        window.vrcse.avatarCache[avatar.id] = avatar;
+                                        let div_c = document.createElement("div");
+                                        div_c.className = "css-bj8sxz col-12";
+                                        div_c.innerHTML = `<div style="box-shadow:none;" class="m-1 p-1 search-container">
+    <div class="row">
+        <div class="col-12 col-md-4">
+            <a href="/home/avatar/${avatar.id}">
+                <img class="w-100" src="${avatar.thumbnailImageUrl}" title="${avatar.name}">
+            </a>
+        </div>
+        <div class="col-12 col-md-8">
+            <h4>
+                <a href="/home/avatar/${avatar.id}">
+                    ${avatar.releaseStatus == "public" ? "" : `<span style="color: rgb(255, 87, 103);"><span aria-hidden="true" class="fa fa-lock"></span>&nbsp;</span>`}
+                    ${avatar.name}
+                </a>
+            </h4>
+            <p>${avatar.description}</p>
+            <button class="btn btn-outline-primary p-1 mr-1 onclickmeavatardaddy" value="${avatar.id}">Favourite</button>
+            <button class="btn btn-outline-danger p-1 mr-1 onclickmeavatardaddy" value="${avatar.id}">Unfavourite</button>
+            <button class="btn btn-outline-info p-1 onclickmeavatardaddy" value="${avatar.id}" title="This will only have an effect on restart">Select</button>
+        </div>
+    </div>
+</div>`;
+                                        adds.append(div_c);
+                                        let onclickmeavatardaddys = document.getElementsByClassName("onclickmeavatardaddy");
+                                        for (let i = 0; i < onclickmeavatardaddys.length; i++) {
+                                            if (onclickmeavatardaddys[i].innerText == "Favourite") {
+                                                onclickmeavatardaddys[i].onclick = onClickAvatarFavourite;
+                                            }
+                                            if (onclickmeavatardaddys[i].innerText == "Unfavourite") {
+                                                onclickmeavatardaddys[i].onclick = onClickAvatarUnfavourite;
+                                            }
+                                            if (onclickmeavatardaddys[i].innerText == "Select") {
+                                                onclickmeavatardaddys[i].onclick = onClickAvatarSelect;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            let avatar = window.vrcse.avatarCache[avatarId];
+                            let div_c = document.createElement("div");
+                            div_c.className = "css-bj8sxz col-12";
+                            div_c.innerHTML = `<div style="box-shadow:none;" class="m-1 p-1 search-container">
+    <div class="row">
+        <div class="col-12 col-md-4">
+            <a href="/home/avatar/${avatar.id}">
+                <img class="w-100" src="${avatar.thumbnailImageUrl}" title="${avatar.name}">
+            </a>
+        </div>
+        <div class="col-12 col-md-8">
+            <h4>
+                <a href="/home/avatar/${avatar.id}">
+                    ${avatar.releaseStatus == "public" ? "" : `<span style="color: rgb(255, 87, 103);"><span aria-hidden="true" class="fa fa-lock"></span>&nbsp;</span>`}
+                    ${avatar.name}
+                </a>
+            </h4>
+            <p>${avatar.description}</p>
+            <button class="btn btn-outline-primary p-1 mr-1 onclickmeavatardaddy" value="${avatar.id}">Favourite</button>
+            <button class="btn btn-outline-danger p-1 mr-1 onclickmeavatardaddy" value="${avatar.id}">Unfavourite</button>
+            <button class="btn btn-outline-info p-1 onclickmeavatardaddy" value="${avatar.id}" title="This will only have an effect on restart">Select</button>
+        </div>
+    </div>
+</div>`;
+                            adds.append(div_c);
+                            let onclickmeavatardaddys = document.getElementsByClassName("onclickmeavatardaddy");
+                            for (let i = 0; i < onclickmeavatardaddys.length; i++) {
+                                if (onclickmeavatardaddys[i].innerText == "Favourite") {
+                                    onclickmeavatardaddys[i].onclick = onClickAvatarFavourite;
+                                }
+                                if (onclickmeavatardaddys[i].innerText == "Unfavourite") {
+                                    onclickmeavatardaddys[i].onclick = onClickAvatarUnfavourite;
+                                }
+                                if (onclickmeavatardaddys[i].innerText == "Select") {
+                                    onclickmeavatardaddys[i].onclick = onClickAvatarSelect;
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+        let div_c = document.createElement("div");
+        div_c.innerHTML = `<h3>
+        <button id="vrcse.favourites.avatars.button" type="button" class="btn btn-secondary">
+            <span aria-hidden="true" class="fa fa-plus-circle"></span>
+        </button>&nbsp;Favourite Avatars
+    </h3>
+    <div class="collapse">
+        <div class="row" id="vrcse.favourite.avatars">
+        </div>
+    </div>
+    <hr>`;
+        content.children[0].children[0].insertBefore(div_c, content.children[0].children[0].children[2]);
+        let btn = document.getElementById("vrcse.favourites.avatars.button");
+        btn.onclick = function () {
+            let collapse = document.getElementById("vrcse.favourite.avatars").parentElement;
+            if (collapse.classList.contains("show")) {
+                collapse.classList.remove("show");
+                this.classList.remove("btn-primary");
+                this.classList.add("btn-secondary");
+                btn.children[0].classList.remove("fa-minus-cricle");
+                btn.children[0].classList.add("fa-plus-cricle");
+            } else {
+                collapse.classList.add("show");
+                this.classList.remove("btn-secondary");
+                this.classList.add("btn-primary");
+                btn.children[0].classList.remove("fa-plus-cricle");
+                btn.children[0].classList.add("fa-minus-cricle");
+            }
+        };
     }
 
     function doSettingsPage() {
