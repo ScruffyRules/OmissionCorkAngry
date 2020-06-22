@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.101
+// @version      0.102
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -719,7 +719,23 @@
                         document.getElementById("vrcse.privates").parentElement.children[0].innerText = `Friends in Privates (${count}/${num})`;
                         if (!this.responseURL.includes("&offset=") && count == 0) {
                             document.getElementById("vrcse.privates").innerText = "No one!";
+                        } else {
+                            var wee = Array.from(document.getElementById("vrcse.privates").children);
+                            wee.sort((a, b) => {
+                                let asd = {"join me":0, "ask me":1, "active":2, "busy":3};
+                                let aa = a.children[0].children[1].children[0].children[0].children[0].children[0].title;
+                                let bb = b.children[0].children[1].children[0].children[0].children[0].children[0].title;
+                                if (aa == bb) {//return 0;
+                                    return a.children[0].children[1].children[0].children[0].childNodes[2].textContent.trim().toLowerCase().localeCompare(b.children[0].children[1].children[0].children[0].childNodes[2].textContent.trim().toLowerCase());
+                                }
+                                if (asd[aa] > asd[bb]) return 1;
+                                if (asd[aa] < asd[bb]) return -1;
+                            });
+                            for (var i = 0; i < wee.length; i++) {
+                                wee[i].parentNode.appendChild(wee[i]);
+                            }
                         }
+
                     }
                     document.getElementById("vrcse.privates").parentElement.value += count;
                     let onclickmedaddys = document.getElementsByClassName("onclickmedaddy");
