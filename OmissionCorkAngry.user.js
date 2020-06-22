@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.100
+// @version      0.101
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -651,6 +651,7 @@
         content.insertBefore(div_c, content.children[content.children.length-1]);
         div_c.className = "vrcse.privates";
         div_c.innerHTML += "<h3>Friends in Privates (LOADING...)</h3>";
+        div_c.value = 0;
         let content_c = document.createElement("div");
         content_c.id = "vrcse.privates";
         content_c.className = "css-3ax2ga";
@@ -702,18 +703,25 @@
                         if (url.includes("&offset=")) {
                             let num = url.substring(url.length-3);
                             num = (parseInt(num) + 100).toString();
-                            url.substring(0, url.length-3) + num;
+                            url = url.substring(0, url.length-3) + num;
                         } else {
                             url += "&offset=100";
                         }
                         this.open("GET", url);
                         this.send();
                     } else {
-                        document.getElementById("vrcse.privates").parentElement.children[0].innerText = "Friends in Privates";
+                        let num = 0;
+                        if (this.responseURL.includes("&offset=")) {
+                            num = this.responseURL.substring(this.responseURL.length-3);
+                        }
+                        count += document.getElementById("vrcse.privates").parentElement.value;
+                        num += content.length;
+                        document.getElementById("vrcse.privates").parentElement.children[0].innerText = `Friends in Privates (${count}/${num})`;
                         if (!this.responseURL.includes("&offset=") && count == 0) {
                             document.getElementById("vrcse.privates").innerText = "No one!";
                         }
                     }
+                    document.getElementById("vrcse.privates").parentElement.value += count;
                     let onclickmedaddys = document.getElementsByClassName("onclickmedaddy");
                     for (let i = 0; i < onclickmedaddys.length; i++) {
                         onclickmedaddys[i].onclick = onClickSendReqInv;
