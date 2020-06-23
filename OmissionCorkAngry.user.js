@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.102
+// @version      0.103
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -462,7 +462,7 @@
                 elem.children[0].appendChild(btn_c);
 
                 elem.classList.add("mt-1");
-                elem.children[2].classList.add("d-flex");
+                elem.getElementsByClassName("statusDescription")[0].classList.add("d-flex");
             }
         }
         let frencont = document.getElementsByClassName("friend-container")[0];
