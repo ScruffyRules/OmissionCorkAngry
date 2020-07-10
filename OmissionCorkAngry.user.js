@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.105
+// @version      0.106
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -273,7 +273,7 @@ Get user's avatars, pagination by 25
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.open("POST", "/api/1/user/" + userId + "/notification");
         xmlhttp.setRequestHeader("Content-Type", "application/json");
-        xmlhttp.send(JSON.stringify({"type":"invite","message":"","details":{"worldId":worldInstance, "rsvp":true, "worldName":title}}));
+        xmlhttp.send(JSON.stringify({"type":"invite","message":"hi","details":{"worldId":worldInstance, "rsvp":true, "worldName":title}}));
         return false;
     }
 
@@ -320,7 +320,7 @@ Get user's avatars, pagination by 25
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.open("POST", "/api/1/user/" + this.value + "/notification");
         xmlhttp.setRequestHeader("Content-Type", "application/json");
-        xmlhttp.send(JSON.stringify({"type":"requestInvite", "message":""}));
+        xmlhttp.send(JSON.stringify({"type":"requestInvite", "message":"hi"}));
     }
 
     var instanceTypes = ["private", "friends", "hidden"];
@@ -1090,9 +1090,11 @@ Get user's avatars, pagination by 25
         }
         form_c.innerHTML += '<input id="vrcse.form.settings.submit" type="submit" class="btn btn-primary float-right mt-n4 pb-1 pt-1" value="Save">';
         div_c.innerHTML += "<h5></h5>";
+        /*
         div_c.innerHTML += "<h3>Stylus</h3>";
         div_c.innerHTML += '<textarea style="overflow: scroll;min-width: -webkit-fill-available;margin-top: 0px;margin-bottom: 0px;min-height: 450px;" id="vrcse.stylus.editor"></textarea>';
         div_c.innerHTML += "<h5></h5>";
+        */
         let submit = document.getElementById("vrcse.form.settings.submit");
         submit.onclick = function (event) {
             let form = document.getElementById("vrcse.form.settings");
@@ -1112,11 +1114,13 @@ Get user's avatars, pagination by 25
             return false;
         }
 
+        /*
         let stylusEditor = document.getElementById("vrcse.stylus.editor");
         stylusEditor.onchange = function () {
             document.getElementById("vrcse.stylus").innerText = this.value;
         }
         stylusEditor.onkeydown = stylusEditor.onchange;
         stylusEditor.onkeyup = stylusEditor.onchange;
+        */
     }
 })();
