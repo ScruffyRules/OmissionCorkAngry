@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.106
+// @version      0.107
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -309,10 +309,10 @@ Get user's avatars, pagination by 25
                         skip = true;
                     }
                 }
-                if (!skip) window.vrcse.sendinvPromptMessage = prompt("Message", "here");
+//                 if (!skip) window.vrcse.sendinvPromptMessage = prompt("Message", "here");
                 window.vrcse.sendinvPromptTimeout = Date.now();
             }
-            sendInv(this.value, window.vrcse.sendinvPromptWorldInstance, window.vrcse.sendinvPromptMessage);
+            sendInv(this.value, window.vrcse.sendinvPromptWorldInstance, "here");
         }
     }
 
@@ -976,6 +976,33 @@ Get user's avatars, pagination by 25
                                             }
                                             if (onclickmeavatardaddys[i].innerText == "Select") {
                                                 onclickmeavatardaddys[i].onclick = onClickAvatarSelect;
+                                            }
+                                        }
+                                    } else if (this.status == 404) {
+                                        let id = this.responseURL.replace(window.location.origin + "/api/1/avatars/", "");
+                                        let div_c = document.createElement("div");
+                                        div_c.className = "css-bj8sxz col-12";
+                                        div_c.innerHTML = `<div style="box-shadow:none;" class="m-1 p-1 search-container">
+    <div class="row">
+        <div class="col-12 col-md-4">
+            <a>
+                <img class="w-100">
+            </a>
+        </div>
+        <div class="col-12 col-md-8">
+            <h4>
+                <a>Deleted: ${id}</a>
+            </h4>
+            <p></p>
+            <button class="btn btn-outline-danger p-1 mr-1 onclickmeavatardaddy" value="${id}">Unfavourite</button>
+        </div>
+    </div>
+</div>`;
+                                        adds.append(div_c);
+                                        let onclickmeavatardaddys = document.getElementsByClassName("onclickmeavatardaddy");
+                                        for (let i = 0; i < onclickmeavatardaddys.length; i++) {
+                                            if (onclickmeavatardaddys[i].innerText == "Unfavourite") {
+                                                onclickmeavatardaddys[i].onclick = onClickAvatarUnfavourite;
                                             }
                                         }
                                     }
