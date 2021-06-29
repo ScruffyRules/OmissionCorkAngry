@@ -34,7 +34,7 @@ Get user's avatars, pagination by 25
 
     function loadSettings() {
         let settings = {};
-        settings["show.sendinv"] = setDefaultIfNotFound("vrcse.show.sendinv", true);
+        settings["show.sendinv"] = setDefaultIfNotFound("vrcse.show.sendinv", false);
         settings["show.reqinv"] = setDefaultIfNotFound("vrcse.show.reqinv", true);
         settings["show.instancejoin"] = setDefaultIfNotFound("vrcse.show.instancejoin", true);
         settings["show.worldandinstanceowners"] = setDefaultIfNotFound("vrcse.show.worldandinstanceowners", false);
@@ -150,6 +150,76 @@ Get user's avatars, pagination by 25
             return false;
         }
         profilelink.appendChild(vrcse_settings_btn);
+        let vrcse_profile_spacer = document.createElement("div");
+        vrcse_profile_spacer.classList.add("mt-1");
+        profilelink.appendChild(vrcse_profile_spacer);
+
+        let vrcse_set_status_to_active = document.createElement("a");
+        vrcse_set_status_to_active.classList.add("btn");
+        vrcse_set_status_to_active.classList.add("btn-outline-primary");
+        vrcse_set_status_to_active.classList.add("mr-1");
+        vrcse_set_status_to_active.style.width = "23.5%";
+        vrcse_set_status_to_active.innerHTML = "<span class=\"css-1lyllzs\"><span class=\"active m-0\" title=\"active\"></span></span>";
+        vrcse_set_status_to_active.href = "/home/vrcse/status";
+        vrcse_set_status_to_active.onclick = function (event) {
+            let xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
+            xmlhttp.setRequestHeader("Content-Type", "application/json");
+            xmlhttp.send(JSON.stringify({"status":"active"}));
+            event.preventDefault();
+            return false;
+        }
+        profilelink.appendChild(vrcse_set_status_to_active);
+        let vrcse_set_status_to_join_me = document.createElement("a");
+        vrcse_set_status_to_join_me.classList.add("btn");
+        vrcse_set_status_to_join_me.classList.add("btn-outline-primary");
+        vrcse_set_status_to_join_me.classList.add("mr-1");
+        vrcse_set_status_to_join_me.style.width = "23.5%";
+        vrcse_set_status_to_join_me.innerHTML = "<span class=\"css-1lyllzs\"><span class=\"join-me m-0\" title=\"join me\"></span></span>";
+        vrcse_set_status_to_join_me.href = "/home/vrcse/status";
+        vrcse_set_status_to_join_me.onclick = function (event) {
+            let xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
+            xmlhttp.setRequestHeader("Content-Type", "application/json");
+            xmlhttp.send(JSON.stringify({"status":"join me"}));
+            event.preventDefault();
+            return false;
+        }
+        profilelink.appendChild(vrcse_set_status_to_join_me);
+
+        let vrcse_set_status_to_ask_me = document.createElement("a");
+        vrcse_set_status_to_ask_me.classList.add("btn");
+        vrcse_set_status_to_ask_me.classList.add("btn-outline-primary");
+        vrcse_set_status_to_ask_me.classList.add("mr-1");
+        vrcse_set_status_to_ask_me.style.width = "23.5%";
+        vrcse_set_status_to_ask_me.innerHTML = "<span class=\"css-1lyllzs\"><span class=\"ask-me m-0\" title=\"ask me\"></span></span>";
+        vrcse_set_status_to_ask_me.href = "/home/vrcse/status";
+        vrcse_set_status_to_ask_me.onclick = function (event) {
+            let xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
+            xmlhttp.setRequestHeader("Content-Type", "application/json");
+            xmlhttp.send(JSON.stringify({"status":"ask me"}));
+            event.preventDefault();
+            return false;
+        }
+        profilelink.appendChild(vrcse_set_status_to_ask_me);
+
+        let vrcse_set_status_to_busy = document.createElement("a");
+        vrcse_set_status_to_busy.classList.add("btn");
+        vrcse_set_status_to_busy.classList.add("btn-outline-primary");
+        vrcse_set_status_to_busy.style.width = "23.5%";
+        vrcse_set_status_to_busy.innerHTML = "<span class=\"css-1lyllzs\"><span class=\"busy m-0\" title=\"busy\"></span></span>";
+        vrcse_set_status_to_busy.href = "/home/vrcse/status";
+        vrcse_set_status_to_busy.onclick = function (event) {
+            let xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
+            xmlhttp.setRequestHeader("Content-Type", "application/json");
+            xmlhttp.send(JSON.stringify({"status":"busy"}));
+            event.preventDefault();
+            return false;
+        }
+        profilelink.appendChild(vrcse_set_status_to_busy);
+
         // The Runs
         settingsBasedGoodies();
         runChecks();
@@ -254,9 +324,6 @@ Get user's avatars, pagination by 25
         if (pathname.startsWith("/home/avatar")) {
             setTimeout(avatarDetails, 500);
         }
-        if (pathname == "/home/avatars") {
-            setTimeout(doAvatarsAdditions, 500);
-        }
         if (pathname == "/home" || pathname == "/home/locations") {
             showPrivatesButton();
         } else {
@@ -273,7 +340,7 @@ Get user's avatars, pagination by 25
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.open("POST", "/api/1/user/" + userId + "/notification");
         xmlhttp.setRequestHeader("Content-Type", "application/json");
-        xmlhttp.send(JSON.stringify({"type":"invite","message":"hi","details":{"worldId":worldInstance, "rsvp":true, "worldName":title}}));
+        xmlhttp.send(JSON.stringify({"type":"invite","message":"hi","details":{"worldId":worldInstance, "worldName":title}}));
         return false;
     }
 
@@ -304,10 +371,6 @@ Get user's avatars, pagination by 25
                     let worldId = queries.worldId;
                     let instanceId = queries.instanceId;
                     window.vrcse.sendinvPromptWorldInstance = worldId + ":" + instanceId;
-                    if (queries.hasOwnProperty("worldName")) {
-                        window.vrcse.sendinvPromptMessage = queries.worldName;
-                        skip = true;
-                    }
                 }
 //                 if (!skip) window.vrcse.sendinvPromptMessage = prompt("Message", "here");
                 window.vrcse.sendinvPromptTimeout = Date.now();
@@ -466,12 +529,12 @@ Get user's avatars, pagination by 25
                         }
                     }
 
-                    if (window.vrcse.settings["show.sendinv"]) {
-                        if (!atag.classList.contains("showinv")) {
-                            atag.classList.add("showinv");
-                            atag.href += "&worldName=" + encodeURIComponent(atag.title);
-                        }
-                    }
+//                     if (window.vrcse.settings["show.sendinv"]) {
+//                         if (!atag.classList.contains("showinv")) {
+//                             atag.classList.add("showinv");
+//                             atag.href += "&worldName=" + encodeURIComponent(atag.title);
+//                         }
+//                     }
                 }
             }
         }
@@ -690,6 +753,7 @@ Get user's avatars, pagination by 25
         let content_c = document.createElement("div");
         content_c.id = "vrcse.privates";
         content_c.className = "css-3ax2ga";
+        content_c.value = 0;
         div_c.appendChild(content_c);
 
         // caching?
@@ -704,6 +768,13 @@ Get user's avatars, pagination by 25
                     let count = 0;
                     for (let i = 0; i < content.length; i++) {
                         let user = content[i];
+                        console.log(user);
+                        if (user.location == "offline")
+                        {
+                            console.log(user.displayName + " is offline!");
+                            document.getElementById("vrcse.privates").value += 1;
+                            continue;
+                        }
                         if (user.location != "private") continue;
                         count++;
                         // Yes, I know, this is very bad
@@ -711,7 +782,7 @@ Get user's avatars, pagination by 25
     <div class="row">
         <div>
             <a title="online" href="/home/user/${user.id}">
-                <img class="img-thumbnail user-img ml-0" src="${user.currentAvatarThumbnailImageUrl}">
+                <img class="img-thumbnail user-img mr-1 ml-2x-3" style="width: 90px;height: 68px;max-width: 100%;" src="${user.currentAvatarThumbnailImageUrl}">
             </a>
         </div>
         <div class="user-info customSendInvCheckButtonDone mt-1">
@@ -721,7 +792,8 @@ Get user's avatars, pagination by 25
                         <span class="${user.status.replace(" ", "-")}" title="${user.status}"></span>
                     </span>${user.displayName}
                 </a>
-                <button class="btn btn-outline-primary ml-1 mt-n1 pt-0 pb-0 pl-1 pr-1 onclickmedaddy" value="${user.id}">ReqInv</button>
+                <button class="btn btn-outline-primary ml-1 mt-n1 pt-0 pb-0 pl-1 pr-1 onclickmedaddy" value="${user.id}">Request Invite</button>
+                <button class="btn btn-outline-primary ml-1 mt-n1 pt-0 pb-0 pl-1 pr-1 onclickmedaddy" value="${user.id}">Send Invite</button>
             </h6><!--
             <p class="offlineOrOnlineOrWhatever">
                 <em>In-World</em>
@@ -751,6 +823,7 @@ Get user's avatars, pagination by 25
                         }
                         count += document.getElementById("vrcse.privates").parentElement.value;
                         num = parseInt(num) + content.length;
+                        num -= document.getElementById("vrcse.privates").value;
                         document.getElementById("vrcse.privates").parentElement.children[0].innerText = `Friends in Privates (${count}/${num})`;
                         if (!this.responseURL.includes("&offset=") && count == 0) {
                             document.getElementById("vrcse.privates").innerText = "No one!";
@@ -777,7 +850,11 @@ Get user's avatars, pagination by 25
                     document.getElementById("vrcse.privates").parentElement.value += count;
                     let onclickmedaddys = document.getElementsByClassName("onclickmedaddy");
                     for (let i = 0; i < onclickmedaddys.length; i++) {
-                        onclickmedaddys[i].onclick = onClickSendReqInv;
+                        if (onclickmedaddys[i].innerText == "Request Invite") {
+                            onclickmedaddys[i].onclick = onClickSendReqInv;
+                        } else { // send invite
+                            onclickmedaddys[i].onclick = onClickSendInv;
+                        }
                     }
                 } else {
                     let privates = document.getElementById("vrcse.privates");
@@ -917,169 +994,6 @@ Get user's avatars, pagination by 25
             event.preventDefault();
             return false;
         }
-    }
-
-    function doAvatarsAdditions() {
-        let content = document.getElementsByClassName("home-content")[0];
-        let xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("GET", "/api/1/favorites/?type=avatar&n=16");
-        xmlhttp.send();
-        xmlhttp.onreadystatechange = function () {
-            if (this.readyState == 4) {
-                if (this.status == 200) {
-                    let favs = JSON.parse(this.responseText);
-                    //vrcse.favourites.avatars.button
-                    favs.forEach(favEntry => {
-                        let avatarId = favEntry.favoriteId;
-                        let adds = document.getElementById("vrcse.favourite.avatars");
-                        if (!window.vrcse.avatarCache.hasOwnProperty(avatarId)) {
-                            let xmlhttp = new XMLHttpRequest();
-                            xmlhttp.open("GET", "/api/1/avatars/" + avatarId);
-                            xmlhttp.send();
-                            xmlhttp.onreadystatechange = function () {
-                                if (this.readyState == 4) {
-                                    if (this.status == 200) {
-                                        let avatar = JSON.parse(this.responseText);
-                                        delete avatar.unityPackages;
-                                        window.vrcse.avatarCache[avatar.id] = avatar;
-                                        let div_c = document.createElement("div");
-                                        div_c.className = "css-bj8sxz col-12";
-                                        div_c.innerHTML = `<div style="box-shadow:none;" class="m-1 p-1 search-container">
-    <div class="row">
-        <div class="col-12 col-md-4">
-            <a href="/home/avatar/${avatar.id}">
-                <img class="w-100" src="${avatar.thumbnailImageUrl}" title="${avatar.name}">
-            </a>
-        </div>
-        <div class="col-12 col-md-8">
-            <h4>
-                <a href="/home/avatar/${avatar.id}">
-                    ${avatar.releaseStatus == "public" ? "" : `<span style="color: rgb(255, 87, 103);"><span aria-hidden="true" class="fa fa-lock"></span>&nbsp;</span>`}
-                    ${avatar.name}
-                </a>
-            </h4>
-            <p>${avatar.description}</p>
-            <button class="btn btn-outline-primary p-1 mr-1 onclickmeavatardaddy" value="${avatar.id}">Favourite</button>
-            <button class="btn btn-outline-danger p-1 mr-1 onclickmeavatardaddy" value="${avatar.id}">Unfavourite</button>
-            <button class="btn btn-outline-info p-1 onclickmeavatardaddy" value="${avatar.id}" title="This will only have an effect on restart">Select</button>
-        </div>
-    </div>
-</div>`;
-                                        adds.append(div_c);
-                                        let onclickmeavatardaddys = document.getElementsByClassName("onclickmeavatardaddy");
-                                        for (let i = 0; i < onclickmeavatardaddys.length; i++) {
-                                            if (onclickmeavatardaddys[i].innerText == "Favourite") {
-                                                onclickmeavatardaddys[i].onclick = onClickAvatarFavourite;
-                                            }
-                                            if (onclickmeavatardaddys[i].innerText == "Unfavourite") {
-                                                onclickmeavatardaddys[i].onclick = onClickAvatarUnfavourite;
-                                            }
-                                            if (onclickmeavatardaddys[i].innerText == "Select") {
-                                                onclickmeavatardaddys[i].onclick = onClickAvatarSelect;
-                                            }
-                                        }
-                                    } else if (this.status == 404) {
-                                        let id = this.responseURL.replace(window.location.origin + "/api/1/avatars/", "");
-                                        let div_c = document.createElement("div");
-                                        div_c.className = "css-bj8sxz col-12";
-                                        div_c.innerHTML = `<div style="box-shadow:none;" class="m-1 p-1 search-container">
-    <div class="row">
-        <div class="col-12 col-md-4">
-            <a>
-                <img class="w-100">
-            </a>
-        </div>
-        <div class="col-12 col-md-8">
-            <h4>
-                <a>Deleted: ${id}</a>
-            </h4>
-            <p></p>
-            <button class="btn btn-outline-danger p-1 mr-1 onclickmeavatardaddy" value="${id}">Unfavourite</button>
-        </div>
-    </div>
-</div>`;
-                                        adds.append(div_c);
-                                        let onclickmeavatardaddys = document.getElementsByClassName("onclickmeavatardaddy");
-                                        for (let i = 0; i < onclickmeavatardaddys.length; i++) {
-                                            if (onclickmeavatardaddys[i].innerText == "Unfavourite") {
-                                                onclickmeavatardaddys[i].onclick = onClickAvatarUnfavourite;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            let avatar = window.vrcse.avatarCache[avatarId];
-                            let div_c = document.createElement("div");
-                            div_c.className = "css-bj8sxz col-12";
-                            div_c.innerHTML = `<div style="box-shadow:none;" class="m-1 p-1 search-container">
-    <div class="row">
-        <div class="col-12 col-md-4">
-            <a href="/home/avatar/${avatar.id}">
-                <img class="w-100" src="${avatar.thumbnailImageUrl}" title="${avatar.name}">
-            </a>
-        </div>
-        <div class="col-12 col-md-8">
-            <h4>
-                <a href="/home/avatar/${avatar.id}">
-                    ${avatar.releaseStatus == "public" ? "" : `<span style="color: rgb(255, 87, 103);"><span aria-hidden="true" class="fa fa-lock"></span>&nbsp;</span>`}
-                    ${avatar.name}
-                </a>
-            </h4>
-            <p>${avatar.description}</p>
-            <button class="btn btn-outline-primary p-1 mr-1 onclickmeavatardaddy" value="${avatar.id}">Favourite</button>
-            <button class="btn btn-outline-danger p-1 mr-1 onclickmeavatardaddy" value="${avatar.id}">Unfavourite</button>
-            <button class="btn btn-outline-info p-1 onclickmeavatardaddy" value="${avatar.id}" title="This will only have an effect on restart">Select</button>
-        </div>
-    </div>
-</div>`;
-                            adds.append(div_c);
-                            let onclickmeavatardaddys = document.getElementsByClassName("onclickmeavatardaddy");
-                            for (let i = 0; i < onclickmeavatardaddys.length; i++) {
-                                if (onclickmeavatardaddys[i].innerText == "Favourite") {
-                                    onclickmeavatardaddys[i].onclick = onClickAvatarFavourite;
-                                }
-                                if (onclickmeavatardaddys[i].innerText == "Unfavourite") {
-                                    onclickmeavatardaddys[i].onclick = onClickAvatarUnfavourite;
-                                }
-                                if (onclickmeavatardaddys[i].innerText == "Select") {
-                                    onclickmeavatardaddys[i].onclick = onClickAvatarSelect;
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-        }
-        let div_c = document.createElement("div");
-        div_c.innerHTML = `<h3>
-        <button id="vrcse.favourites.avatars.button" type="button" class="btn btn-secondary">
-            <span aria-hidden="true" class="fa fa-plus-circle"></span>
-        </button>&nbsp;Favourite Avatars
-    </h3>
-    <div class="collapse">
-        <div class="row" id="vrcse.favourite.avatars">
-        </div>
-    </div>
-    <hr>`;
-        content.children[0].children[0].insertBefore(div_c, content.children[0].children[0].children[2]);
-        let btn = document.getElementById("vrcse.favourites.avatars.button");
-        btn.onclick = function () {
-            let collapse = document.getElementById("vrcse.favourite.avatars").parentElement;
-            if (collapse.classList.contains("show")) {
-                collapse.classList.remove("show");
-                this.classList.remove("btn-primary");
-                this.classList.add("btn-secondary");
-                btn.children[0].classList.remove("fa-minus-cricle");
-                btn.children[0].classList.add("fa-plus-cricle");
-            } else {
-                collapse.classList.add("show");
-                this.classList.remove("btn-secondary");
-                this.classList.add("btn-primary");
-                btn.children[0].classList.remove("fa-plus-cricle");
-                btn.children[0].classList.add("fa-minus-cricle");
-            }
-        };
     }
 
     function doSettingsPage() {
