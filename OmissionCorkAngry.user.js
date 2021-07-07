@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.108
+// @version      0.109
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -338,9 +338,11 @@ Get user's avatars, pagination by 25
 
     function sendInv(userId, worldInstance, title) {
         let xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("POST", "/api/1/user/" + userId + "/notification");
+        //xmlhttp.open("POST", "/api/1/user/" + userId + "/notification");
+        xmlhttp.open("POST", "/api/1/invite/" + userId);
         xmlhttp.setRequestHeader("Content-Type", "application/json");
-        xmlhttp.send(JSON.stringify({"type":"invite","message":"hi","details":{"worldId":worldInstance, "worldName":title}}));
+        //xmlhttp.send(JSON.stringify({"type":"invite","message":"hi","details":{"worldId":worldInstance, "worldName":title}}));
+        xmlhttp.send(JSON.stringify({"instanceId":worldInstance}));
         return false;
     }
 
@@ -381,9 +383,11 @@ Get user's avatars, pagination by 25
 
     function onClickSendReqInv() {
         let xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("POST", "/api/1/user/" + this.value + "/notification");
+        //xmlhttp.open("POST", "/api/1/user/" + this.value + "/notification");
+        xmlhttp.open("POST", "/api/1/requestInvite/" + this.value);
         xmlhttp.setRequestHeader("Content-Type", "application/json");
-        xmlhttp.send(JSON.stringify({"type":"requestInvite", "message":"hi"}));
+        //xmlhttp.send(JSON.stringify({"type":"requestInvite", "message":"hi"}));
+        xmlhttp.send(JSON.stringify({"platform":"standalonewindows"}));
     }
 
     var instanceTypes = ["private", "friends", "hidden"];
