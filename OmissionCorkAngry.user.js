@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.109
+// @version      0.110
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -38,8 +38,8 @@ Get user's avatars, pagination by 25
         settings["show.reqinv"] = setDefaultIfNotFound("vrcse.show.reqinv", true);
         settings["show.instancejoin"] = setDefaultIfNotFound("vrcse.show.instancejoin", true);
         settings["show.worldandinstanceowners"] = setDefaultIfNotFound("vrcse.show.worldandinstanceowners", false);
-//         settings["show.worldsize"] = setDefaultIfNotFound("vrcse.show.worldsize", false); // Requires another web request
-        settings["remove.uppercase"] = setDefaultIfNotFound("vrcse.remove.uppercase", true);
+        //settings["show.worldsize"] = setDefaultIfNotFound("vrcse.show.worldsize", false); // Requires another web request
+        //settings["remove.uppercase"] = setDefaultIfNotFound("vrcse.remove.uppercase", true);
         window.vrcse.settings = settings;
         window.vrcse.settings.list = {
             "show.sendinv":"Send Invite Buttons",
@@ -239,7 +239,7 @@ Get user's avatars, pagination by 25
     }
 
     function settingsBasedGoodies() {
-        if (window.vrcse.settings["remove.uppercase"]) {
+        /*if (window.vrcse.settings["remove.uppercase"]) {
             let styleSheet = document.styleSheets[0];
             for (var i = 0; i < styleSheet.cssRules.length; i++) {
                 if (styleSheet.cssRules[i].selectorText != undefined) {
@@ -255,7 +255,7 @@ Get user's avatars, pagination by 25
         } else {
             let styleSheet = document.styleSheets[0];
             styleSheet.insertRule("h1, h2, h3, h4, h5, h6 {text-transform: uppercase}");
-        }
+        }*/
         if (!window.vrcse.settings["show.sendinv"]) {
             let sendinvs = document.getElementsByClassName("customSendInvCheckButtonDone");
             for (let i = 0; i < sendinvs.length; i++) {
