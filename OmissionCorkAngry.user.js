@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.110
+// @version      0.111
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -682,13 +682,6 @@ Get user's avatars, pagination by 25
 
     function avatarDetails() {
         let atag = document.getElementsByClassName("home-content")[0].getElementsByTagName("A")[1];
-        // Remove dumb darking effect from private avatars and make the lock red and on the left side of the name of the avatar
-        if (atag.parentElement.parentElement.parentElement.parentElement.classList.contains("private")) {
-            atag.parentElement.parentElement.parentElement.parentElement.classList.remove("private");
-            atag.insertBefore(atag.childNodes[1], atag.childNodes[0]);
-            atag.children[0].childNodes[0].remove();
-            atag.children[0].style.color = "#ff5767";
-        }
         let avatarId = atag.href.replace(window.location.origin + "/home/avatar/", "");
         // Fav
         let btn_c = document.createElement("button");
