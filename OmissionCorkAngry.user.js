@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.111
+// @version      0.112
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -756,7 +756,23 @@ Get user's avatars, pagination by 25
         // caching?
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", "/api/1/auth/user/friends?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
-        xmlhttp.send();
+
+        let onlineFriends = [];
+        let xmlhttpf = new XMLHttpRequest();
+        xmlhttpf.open("GET", "/api/1/auth/user?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
+        xmlhttpf.send();
+        xmlhttpf.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    let content = JSON.parse(this.responseText);
+                    onlineFriends = content.onlineFriends;
+                    xmlhttp.send();
+                }
+            }
+        }
+
+
+        //xmlhttp.send();
         xmlhttp.onreadystatechange = function () {
             if (this.readyState == 4) {
                 if (this.status == 200) {
@@ -765,21 +781,23 @@ Get user's avatars, pagination by 25
                     let count = 0;
                     for (let i = 0; i < content.length; i++) {
                         let user = content[i];
-                        console.log(user);
                         if (user.location == "offline")
                         {
                             console.log(user.displayName + " is offline!");
-                            document.getElementById("vrcse.privates").value += 1;
+                            //document.getElementById("vrcse.privates").value += 1;
                             continue;
                         }
                         if (user.location != "private") continue;
+                        if (!onlineFriends.includes(user.id)) continue;
                         count++;
+                        let picurl = user.currentAvatarThumbnailImageUrl;
+                        if (user.profilePicOverride) picurl = user.profilePicOverride;
                         // Yes, I know, this is very bad
                         privates.innerHTML += `<div class="usercard friend-true size-wide state-online level-${getHighestTrustRank(user.tags)} card mb-1">
     <div class="row">
         <div>
             <a title="online" href="/home/user/${user.id}">
-                <img class="img-thumbnail user-img mr-1 ml-2x-3" style="width: 90px;height: 68px;max-width: 100%;" src="${user.currentAvatarThumbnailImageUrl}">
+                <img class="img-thumbnail user-img mr-1 ml-2x-3" style="width: 90px;height: 68px;max-width: 100%;" src="${picurl}">
             </a>
         </div>
         <div class="user-info customSendInvCheckButtonDone mt-1">
@@ -811,17 +829,20 @@ Get user's avatars, pagination by 25
                         } else {
                             url += "&offset=100";
                         }
+                        document.getElementById("vrcse.privates").parentElement.value += count;
                         this.open("GET", url);
                         this.send();
                     } else {
-                        let num = 0;
-                        if (this.responseURL.includes("&offset=")) {
-                            num = this.responseURL.substring(this.responseURL.length-3);
-                        }
+                        let num = onlineFriends.length;
+                        // let num = 0;
+                        // if (this.responseURL.includes("&offset=")) {
+                        //     num = this.responseURL.substring(this.responseURL.length-3);
+                        // }
                         count += document.getElementById("vrcse.privates").parentElement.value;
-                        num = parseInt(num) + content.length;
-                        num -= document.getElementById("vrcse.privates").value;
-                        document.getElementById("vrcse.privates").parentElement.children[0].innerText = `Friends in Privates (${count}/${num})`;
+                        // num = parseInt(num) + content.length;
+                        // num -= document.getElementById("vrcse.privates").value;
+                        let percent = ((count/parseFloat(num))*100).toFixed(2);
+                        document.getElementById("vrcse.privates").parentElement.children[0].innerText = `Friends in Privates (${count}/${num}, ${percent}\%)`;
                         if (!this.responseURL.includes("&offset=") && count == 0) {
                             document.getElementById("vrcse.privates").innerText = "No one!";
                         } else {
@@ -844,7 +865,6 @@ Get user's avatars, pagination by 25
                         }
 
                     }
-                    document.getElementById("vrcse.privates").parentElement.value += count;
                     let onclickmedaddys = document.getElementsByClassName("onclickmedaddy");
                     for (let i = 0; i < onclickmedaddys.length; i++) {
                         if (onclickmedaddys[i].innerText == "Request Invite") {
