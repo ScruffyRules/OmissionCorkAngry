@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.113
+// @version      0.114
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -126,16 +126,18 @@ Get user's avatars, pagination by 25
         let userInfo = window.vrcse.userInfo;
         console.log(`VRCSE Authed ${userInfo.id} - ${userInfo.username} - ${userInfo.displayName}`);
         let c_div = document.createElement("div");
-        c_div.innerHTML = "<h4>VRCSE</h4>";
         if (typeof GM_info !== 'undefined') {
-            c_div.innerHTML += "v"+GM_info.script.version;
+            c_div.innerHTML = `<h6 style="top: -20px;position: relative;">VRCSE v${GM_info.script.version}</h6>`;
+        } else {
+            c_div.innerHTML = `<h6 style="top: -20px;position: relative;">VRCSE</h6>`;
         }
-        c_div.className = "mt-1";
-        let goodshit = document.getElementsByClassName("fixed-top bg-gradient-secondary leftbar col-2")[0].getElementsByClassName("usercard")[0].children[0];
+        c_div.className = "position-absolute";
+        let goodshit = document.getElementsByClassName("fixed-top bg-gradient-secondary leftbar col-2")[0].children[0];
         goodshit.insertBefore(c_div, goodshit.children[1]);
 
         // Settings Button
-        let profilelink = document.getElementsByClassName("profile-link")[0];
+        let profilelink = document.getElementsByClassName("fixed-top bg-gradient-secondary leftbar col-2")[0].children[0].children[2].children[2];
+        profilelink.classList.add("d-block");
         profilelink.children[0].classList.remove("d-block");
         let vrcse_settings_btn = profilelink.children[0].cloneNode(true);
         profilelink.children[0].style.width = "49%";
