@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.114
+// @version      0.115
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -127,20 +127,20 @@ Get user's avatars, pagination by 25
         console.log(`VRCSE Authed ${userInfo.id} - ${userInfo.username} - ${userInfo.displayName}`);
         let c_div = document.createElement("div");
         if (typeof GM_info !== 'undefined') {
-            c_div.innerHTML = `<h6 style="top: -20px;position: relative;">VRCSE v${GM_info.script.version}</h6>`;
+            c_div.innerHTML = `<h6 style="top: -20px;position: relative;float: right;">VRCSE v${GM_info.script.version}</h6>`;
         } else {
-            c_div.innerHTML = `<h6 style="top: -20px;position: relative;">VRCSE</h6>`;
+            c_div.innerHTML = `<h6 style="top: -20px;position: relative;float: right;">VRCSE</h6>`;
         }
-        c_div.className = "position-absolute";
+        // c_div.className = "position-absolute";
         let goodshit = document.getElementsByClassName("fixed-top bg-gradient-secondary leftbar col-2")[0].children[0];
         goodshit.insertBefore(c_div, goodshit.children[1]);
 
         // Settings Button
-        let profilelink = document.getElementsByClassName("fixed-top bg-gradient-secondary leftbar col-2")[0].children[0].children[2].children[2];
-        profilelink.classList.add("d-block");
-        profilelink.children[0].classList.remove("d-block");
-        let vrcse_settings_btn = profilelink.children[0].cloneNode(true);
-        profilelink.children[0].style.width = "49%";
+        let profilelink = document.getElementsByClassName("fixed-top bg-gradient-secondary leftbar col-2")[0].children[0].children[2].getElementsByClassName("btn btn-outline-primary d-block")[0];
+        profilelink.parentElement.classList.add("d-block");
+        profilelink.classList.remove("d-block");
+        let vrcse_settings_btn = profilelink.cloneNode(true);
+        profilelink.style.width = "49%";
         vrcse_settings_btn.style.width = "49%";
         vrcse_settings_btn.classList.add("float-right");
         vrcse_settings_btn.href = "/home/vrcse";
@@ -151,10 +151,10 @@ Get user's avatars, pagination by 25
             event.preventDefault();
             return false;
         }
-        profilelink.appendChild(vrcse_settings_btn);
+        profilelink.parentElement.appendChild(vrcse_settings_btn);
         let vrcse_profile_spacer = document.createElement("div");
         vrcse_profile_spacer.classList.add("mt-1");
-        profilelink.appendChild(vrcse_profile_spacer);
+        profilelink.parentElement.appendChild(vrcse_profile_spacer);
 
         let vrcse_set_status_to_active = document.createElement("a");
         vrcse_set_status_to_active.classList.add("btn");
@@ -171,7 +171,7 @@ Get user's avatars, pagination by 25
             event.preventDefault();
             return false;
         }
-        profilelink.appendChild(vrcse_set_status_to_active);
+        profilelink.parentElement.appendChild(vrcse_set_status_to_active);
         let vrcse_set_status_to_join_me = document.createElement("a");
         vrcse_set_status_to_join_me.classList.add("btn");
         vrcse_set_status_to_join_me.classList.add("btn-outline-primary");
@@ -187,7 +187,7 @@ Get user's avatars, pagination by 25
             event.preventDefault();
             return false;
         }
-        profilelink.appendChild(vrcse_set_status_to_join_me);
+        profilelink.parentElement.appendChild(vrcse_set_status_to_join_me);
 
         let vrcse_set_status_to_ask_me = document.createElement("a");
         vrcse_set_status_to_ask_me.classList.add("btn");
@@ -204,7 +204,7 @@ Get user's avatars, pagination by 25
             event.preventDefault();
             return false;
         }
-        profilelink.appendChild(vrcse_set_status_to_ask_me);
+        profilelink.parentElement.appendChild(vrcse_set_status_to_ask_me);
 
         let vrcse_set_status_to_busy = document.createElement("a");
         vrcse_set_status_to_busy.classList.add("btn");
@@ -220,7 +220,7 @@ Get user's avatars, pagination by 25
             event.preventDefault();
             return false;
         }
-        profilelink.appendChild(vrcse_set_status_to_busy);
+        profilelink.parentElement.appendChild(vrcse_set_status_to_busy);
 
         // The Runs
         settingsBasedGoodies();
