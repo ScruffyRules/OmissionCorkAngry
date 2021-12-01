@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.115
+// @version      0.116
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -127,9 +127,9 @@ Get user's avatars, pagination by 25
         console.log(`VRCSE Authed ${userInfo.id} - ${userInfo.username} - ${userInfo.displayName}`);
         let c_div = document.createElement("div");
         if (typeof GM_info !== 'undefined') {
-            c_div.innerHTML = `<h6 style="top: -20px;position: relative;float: right;">VRCSE v${GM_info.script.version}</h6>`;
+            c_div.innerHTML = `<h6 style="top: -20px;position: relative;float: right;text-shadow: 0px 0px 3px black;padding-right: 2px;">VRCSE v${GM_info.script.version}</h6>`;
         } else {
-            c_div.innerHTML = `<h6 style="top: -20px;position: relative;float: right;">VRCSE</h6>`;
+            c_div.innerHTML = `<h6 style="top: -20px;position: relative;float: right;text-shadow: 0px 0px 3px black;padding-right: 2px;">VRCSE</h6>`;
         }
         // c_div.className = "position-absolute";
         let goodshit = document.getElementsByClassName("fixed-top bg-gradient-secondary leftbar col-2")[0].children[0];
@@ -161,7 +161,7 @@ Get user's avatars, pagination by 25
         vrcse_set_status_to_active.classList.add("btn-outline-primary");
         vrcse_set_status_to_active.classList.add("mr-1");
         vrcse_set_status_to_active.style.width = "23.5%";
-        vrcse_set_status_to_active.innerHTML = "<span class=\"css-1i1vw2z\"><span class=\"active m-0\" title=\"active\"></span></span>";
+        vrcse_set_status_to_active.innerHTML = "<span class=\"css-aqta49\"><span class=\"active m-0\" title=\"active\"></span></span>";
         vrcse_set_status_to_active.href = "/home/vrcse/status";
         vrcse_set_status_to_active.onclick = function (event) {
             let xmlhttp = new XMLHttpRequest();
@@ -177,7 +177,7 @@ Get user's avatars, pagination by 25
         vrcse_set_status_to_join_me.classList.add("btn-outline-primary");
         vrcse_set_status_to_join_me.classList.add("mr-1");
         vrcse_set_status_to_join_me.style.width = "23.5%";
-        vrcse_set_status_to_join_me.innerHTML = "<span class=\"css-1i1vw2z\"><span class=\"join-me m-0\" title=\"join me\"></span></span>";
+        vrcse_set_status_to_join_me.innerHTML = "<span class=\"css-aqta49\"><span class=\"join-me m-0\" title=\"join me\"></span></span>";
         vrcse_set_status_to_join_me.href = "/home/vrcse/status";
         vrcse_set_status_to_join_me.onclick = function (event) {
             let xmlhttp = new XMLHttpRequest();
@@ -194,7 +194,7 @@ Get user's avatars, pagination by 25
         vrcse_set_status_to_ask_me.classList.add("btn-outline-primary");
         vrcse_set_status_to_ask_me.classList.add("mr-1");
         vrcse_set_status_to_ask_me.style.width = "23.5%";
-        vrcse_set_status_to_ask_me.innerHTML = "<span class=\"css-1i1vw2z\"><span class=\"ask-me m-0\" title=\"ask me\"></span></span>";
+        vrcse_set_status_to_ask_me.innerHTML = "<span class=\"css-aqta49\"><span class=\"ask-me m-0\" title=\"ask me\"></span></span>";
         vrcse_set_status_to_ask_me.href = "/home/vrcse/status";
         vrcse_set_status_to_ask_me.onclick = function (event) {
             let xmlhttp = new XMLHttpRequest();
@@ -210,7 +210,7 @@ Get user's avatars, pagination by 25
         vrcse_set_status_to_busy.classList.add("btn");
         vrcse_set_status_to_busy.classList.add("btn-outline-primary");
         vrcse_set_status_to_busy.style.width = "23.5%";
-        vrcse_set_status_to_busy.innerHTML = "<span class=\"css-1i1vw2z\"><span class=\"busy m-0\" title=\"busy\"></span></span>";
+        vrcse_set_status_to_busy.innerHTML = "<span class=\"css-aqta49\"><span class=\"busy m-0\" title=\"busy\"></span></span>";
         vrcse_set_status_to_busy.href = "/home/vrcse/status";
         vrcse_set_status_to_busy.onclick = function (event) {
             let xmlhttp = new XMLHttpRequest();
@@ -567,75 +567,75 @@ Get user's avatars, pagination by 25
             }
         }
 
-        if (window.vrcse.settings["show.instancejoin"] || window.vrcse.settings["show.reqinv"]) {
-            let frencont = document.getElementsByClassName("friend-scroll-container")[0];
-            if (loccont != undefined) {
-                let elems = frencont.getElementsByClassName("usercard");
-                for (let i=0; i<elems.length; i++) {
-                    let elem = elems[i];
-                    if (elem.children.length == 1) continue; // Offline
-                    let loctitle = elem.children[1].getElementsByClassName("location-title");
-                    if (loctitle.length == 1) { // public
-                        if (!window.vrcse.settings["show.instancejoin"]) continue;
-                        if (elem.classList.contains("customReqInvCheckButtonDone")) {
-                            let butts = elem.children[1].children[0].getElementsByTagName("button");
-                            if (butts.length == 1) {
-                                butts[0].remove();
-                                elem.classList.remove("customReqInvCheckButtonDone");
-                            } else {
-                                elem.classList.remove("customReqInvCheckButtonDone");
-                            }
-                        }
-                        let elem2 = loctitle[0];
-                        let atag = null;
-                        if (elem2.children.length >= 2) {
-                            atag = elem2.children[1];
-                        } else {
-                            atag = elem2.children[0];
-                        }
-                        if (atag.tagName != "A") continue;
-                        let title = atag.title;
-                        let queries = getQueries(atag.href.split("?")[1]);
-                        let worldId = queries.worldId;
-                        let instanceId = queries.instanceId;
-                        if (elem2.classList.contains("customJoinCheckButtonDone")) {
-                            let butts = elem2.getElementsByTagName("button");
-                            if (butts.length == 1) {
-                                butts[0].value = worldId + ":" + instanceId;
-                                butts[0].title = title;
-                                continue;
-                            }
-                        }
-                        let btn_c = document.createElement("button");
-                        btn_c.className = "btn btn-outline-primary pt-0 pb-0 pl-1 pr-1";
-                        btn_c.innerText = "Join";
-                        btn_c.value = worldId + ":" + instanceId;
-                        btn_c.title = title;
-                        btn_c.onclick = onClickJoin;
-                        if (!elem2.classList.contains("customJoinCheckButtonDone")) {
-                            elem2.classList.add("customJoinCheckButtonDone");
-                        }
-                        elem2.appendChild(btn_c);
-                    } else { // private
-                        if (!window.vrcse.settings["show.reqinv"]) continue;
-                        if (elem.classList.contains("customReqInvCheckButtonDone")) continue;
-                        if (elem.getElementsByClassName("fa-spinner").length == 1) continue; // loading?! idk just VRC things
-                        let btn_c = document.createElement("button");
-                        btn_c.className = "btn btn-outline-primary ml-1 pt-0 pb-0 pl-1 pr-1";
-                        btn_c.innerText = "Request Invite";
-                        let userId = elem.children[0].children[0].children[0].href.replace(window.location.origin + "/home/user/", "");
-                        btn_c.value = userId;
-                        btn_c.onclick = onClickSendReqInv;
-                        elem.classList.add("customReqInvCheckButtonDone");
-                        if (elem.children[1].children[0] == undefined) {
-                            debugger;
-                            continue;
-                        }
-                        elem.children[1].children[0].appendChild(btn_c);
-                    }
-                }
-            }
-        }
+        // if (window.vrcse.settings["show.instancejoin"] || window.vrcse.settings["show.reqinv"]) {
+        //     let frencont = document.getElementsByClassName("friend-scroll-container")[0];
+        //     if (loccont != undefined) {
+        //         let elems = frencont.getElementsByClassName("usercard");
+        //         for (let i=0; i<elems.length; i++) {
+        //             let elem = elems[i];
+        //             if (elem.children.length == 1) continue; // Offline
+        //             let loctitle = elem.children[1].getElementsByClassName("location-title");
+        //             if (loctitle.length == 1) { // public
+        //                 if (!window.vrcse.settings["show.instancejoin"]) continue;
+        //                 if (elem.classList.contains("customReqInvCheckButtonDone")) {
+        //                     let butts = elem.children[1].children[0].getElementsByTagName("button");
+        //                     if (butts.length == 1) {
+        //                         butts[0].remove();
+        //                         elem.classList.remove("customReqInvCheckButtonDone");
+        //                     } else {
+        //                         elem.classList.remove("customReqInvCheckButtonDone");
+        //                     }
+        //                 }
+        //                 let elem2 = loctitle[0];
+        //                 let atag = null;
+        //                 if (elem2.children.length >= 2) {
+        //                     atag = elem2.children[1];
+        //                 } else {
+        //                     atag = elem2.children[0];
+        //                 }
+        //                 if (atag.tagName != "A") continue;
+        //                 let title = atag.title;
+        //                 let queries = getQueries(atag.href.split("?")[1]);
+        //                 let worldId = queries.worldId;
+        //                 let instanceId = queries.instanceId;
+        //                 if (elem2.classList.contains("customJoinCheckButtonDone")) {
+        //                     let butts = elem2.getElementsByTagName("button");
+        //                     if (butts.length == 1) {
+        //                         butts[0].value = worldId + ":" + instanceId;
+        //                         butts[0].title = title;
+        //                         continue;
+        //                     }
+        //                 }
+        //                 let btn_c = document.createElement("button");
+        //                 btn_c.className = "btn btn-outline-primary pt-0 pb-0 pl-1 pr-1";
+        //                 btn_c.innerText = "Join";
+        //                 btn_c.value = worldId + ":" + instanceId;
+        //                 btn_c.title = title;
+        //                 btn_c.onclick = onClickJoin;
+        //                 if (!elem2.classList.contains("customJoinCheckButtonDone")) {
+        //                     elem2.classList.add("customJoinCheckButtonDone");
+        //                 }
+        //                 elem2.appendChild(btn_c);
+        //             } else { // private
+        //                 if (!window.vrcse.settings["show.reqinv"]) continue;
+        //                 if (elem.classList.contains("customReqInvCheckButtonDone")) continue;
+        //                 if (elem.getElementsByClassName("fa-spinner").length == 1) continue; // loading?! idk just VRC things
+        //                 let btn_c = document.createElement("button");
+        //                 btn_c.className = "btn btn-outline-primary ml-1 pt-0 pb-0 pl-1 pr-1";
+        //                 btn_c.innerText = "Request Invite";
+        //                 let userId = elem.children[0].children[0].children[0].href.replace(window.location.origin + "/home/user/", "");
+        //                 btn_c.value = userId;
+        //                 btn_c.onclick = onClickSendReqInv;
+        //                 elem.classList.add("customReqInvCheckButtonDone");
+        //                 if (elem.children[1].children[0] == undefined) {
+        //                     debugger;
+        //                     continue;
+        //                 }
+        //                 elem.children[1].children[0].appendChild(btn_c);
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     function onClickAvatarFavourite() {
@@ -807,7 +807,7 @@ Get user's avatars, pagination by 25
         <div class="user-info customSendInvCheckButtonDone mt-1">
             <h6>
                 <a href="/home/user/${user.id}">
-                    <span class="css-1i1vw2z">
+                    <span class="css-aqta49">
                         <span class="${user.status.replace(" ", "-")}" title="${user.status}"></span>
                     </span>${user.displayName}
                 </a>
@@ -893,6 +893,7 @@ Get user's avatars, pagination by 25
         btn_c.innerText = "Privates";
         btn_c.title = "Don't spam!";
         btn_c.onclick = onClickPrivates;
+        btn_c.style.cssText = "align-self: flex-end;";
         homecont.insertBefore(btn_c, homecont.children[0]);
         homecont.classList.add("vrcse-privates-button");
     }
