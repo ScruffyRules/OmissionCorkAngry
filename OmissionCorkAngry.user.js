@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VRChat Site Enhanced
 // @namespace    ScruffyRules
-// @version      0.116
+// @version      0.117
 // @description  Trying to enchance VRChat's website with extra goodies
 // @author       ScruffyRules
 // @match        https://vrchat.com/home/*
@@ -125,102 +125,102 @@ Get user's avatars, pagination by 25
         //debugger;
         let userInfo = window.vrcse.userInfo;
         console.log(`VRCSE Authed ${userInfo.id} - ${userInfo.username} - ${userInfo.displayName}`);
-        let c_div = document.createElement("div");
-        if (typeof GM_info !== 'undefined') {
-            c_div.innerHTML = `<h6 style="top: -20px;position: relative;float: right;text-shadow: 0px 0px 3px black;padding-right: 2px;">VRCSE v${GM_info.script.version}</h6>`;
-        } else {
-            c_div.innerHTML = `<h6 style="top: -20px;position: relative;float: right;text-shadow: 0px 0px 3px black;padding-right: 2px;">VRCSE</h6>`;
-        }
-        // c_div.className = "position-absolute";
-        let goodshit = document.getElementsByClassName("fixed-top bg-gradient-secondary leftbar col-2")[0].children[0];
-        goodshit.insertBefore(c_div, goodshit.children[1]);
+//         let c_div = document.createElement("div");
+//         if (typeof GM_info !== 'undefined') {
+//             c_div.innerHTML = `<h6 style="top: -20px;position: relative;float: right;text-shadow: 0px 0px 3px black;padding-right: 2px;">VRCSE v${GM_info.script.version}</h6>`;
+//         } else {
+//             c_div.innerHTML = `<h6 style="top: -20px;position: relative;float: right;text-shadow: 0px 0px 3px black;padding-right: 2px;">VRCSE</h6>`;
+//         }
+//         // c_div.className = "position-absolute";
+//         let goodshit = document.getElementsByClassName("fixed-top bg-gradient-secondary leftbar col-2")[0].children[0];
+//         goodshit.insertBefore(c_div, goodshit.children[1]);
 
-        // Settings Button
-        let profilelink = document.getElementsByClassName("fixed-top bg-gradient-secondary leftbar col-2")[0].children[0].children[2].getElementsByClassName("btn btn-outline-primary d-block")[0];
-        profilelink.parentElement.classList.add("d-block");
-        profilelink.classList.remove("d-block");
-        let vrcse_settings_btn = profilelink.cloneNode(true);
-        profilelink.style.width = "49%";
-        vrcse_settings_btn.style.width = "49%";
-        vrcse_settings_btn.classList.add("float-right");
-        vrcse_settings_btn.href = "/home/vrcse";
-        //vrcse_settings_btn.removeAttribute("href");
-        vrcse_settings_btn.childNodes[1].data = " VRCSE";
-        vrcse_settings_btn.onclick = function (event) {
-            doSettingsPage();
-            event.preventDefault();
-            return false;
-        }
-        profilelink.parentElement.appendChild(vrcse_settings_btn);
-        let vrcse_profile_spacer = document.createElement("div");
-        vrcse_profile_spacer.classList.add("mt-1");
-        profilelink.parentElement.appendChild(vrcse_profile_spacer);
+//         // Settings Button
+//         let profilelink = document.getElementsByClassName("fixed-top bg-gradient-secondary leftbar col-2")[0].children[0].children[2].getElementsByClassName("btn btn-outline-primary d-block")[0];
+//         profilelink.parentElement.classList.add("d-block");
+//         profilelink.classList.remove("d-block");
+//         let vrcse_settings_btn = profilelink.cloneNode(true);
+//         profilelink.style.width = "49%";
+//         vrcse_settings_btn.style.width = "49%";
+//         vrcse_settings_btn.classList.add("float-right");
+//         vrcse_settings_btn.href = "/home/vrcse";
+//         //vrcse_settings_btn.removeAttribute("href");
+//         vrcse_settings_btn.childNodes[1].data = " VRCSE";
+//         vrcse_settings_btn.onclick = function (event) {
+//             doSettingsPage();
+//             event.preventDefault();
+//             return false;
+//         }
+//         profilelink.parentElement.appendChild(vrcse_settings_btn);
+//         let vrcse_profile_spacer = document.createElement("div");
+//         vrcse_profile_spacer.classList.add("mt-1");
+//         profilelink.parentElement.appendChild(vrcse_profile_spacer);
 
-        let vrcse_set_status_to_active = document.createElement("a");
-        vrcse_set_status_to_active.classList.add("btn");
-        vrcse_set_status_to_active.classList.add("btn-outline-primary");
-        vrcse_set_status_to_active.classList.add("mr-1");
-        vrcse_set_status_to_active.style.width = "23.5%";
-        vrcse_set_status_to_active.innerHTML = "<span class=\"css-aqta49\"><span class=\"active m-0\" title=\"active\"></span></span>";
-        vrcse_set_status_to_active.href = "/home/vrcse/status";
-        vrcse_set_status_to_active.onclick = function (event) {
-            let xmlhttp = new XMLHttpRequest();
-            xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
-            xmlhttp.setRequestHeader("Content-Type", "application/json");
-            xmlhttp.send(JSON.stringify({"status":"active"}));
-            event.preventDefault();
-            return false;
-        }
-        profilelink.parentElement.appendChild(vrcse_set_status_to_active);
-        let vrcse_set_status_to_join_me = document.createElement("a");
-        vrcse_set_status_to_join_me.classList.add("btn");
-        vrcse_set_status_to_join_me.classList.add("btn-outline-primary");
-        vrcse_set_status_to_join_me.classList.add("mr-1");
-        vrcse_set_status_to_join_me.style.width = "23.5%";
-        vrcse_set_status_to_join_me.innerHTML = "<span class=\"css-aqta49\"><span class=\"join-me m-0\" title=\"join me\"></span></span>";
-        vrcse_set_status_to_join_me.href = "/home/vrcse/status";
-        vrcse_set_status_to_join_me.onclick = function (event) {
-            let xmlhttp = new XMLHttpRequest();
-            xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
-            xmlhttp.setRequestHeader("Content-Type", "application/json");
-            xmlhttp.send(JSON.stringify({"status":"join me"}));
-            event.preventDefault();
-            return false;
-        }
-        profilelink.parentElement.appendChild(vrcse_set_status_to_join_me);
+//         let vrcse_set_status_to_active = document.createElement("a");
+//         vrcse_set_status_to_active.classList.add("btn");
+//         vrcse_set_status_to_active.classList.add("btn-outline-primary");
+//         vrcse_set_status_to_active.classList.add("mr-1");
+//         vrcse_set_status_to_active.style.width = "23.5%";
+//         vrcse_set_status_to_active.innerHTML = "<span class=\"css-aqta49\"><span class=\"active m-0\" title=\"active\"></span></span>";
+//         vrcse_set_status_to_active.href = "/home/vrcse/status";
+//         vrcse_set_status_to_active.onclick = function (event) {
+//             let xmlhttp = new XMLHttpRequest();
+//             xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
+//             xmlhttp.setRequestHeader("Content-Type", "application/json");
+//             xmlhttp.send(JSON.stringify({"status":"active"}));
+//             event.preventDefault();
+//             return false;
+//         }
+//         profilelink.parentElement.appendChild(vrcse_set_status_to_active);
+//         let vrcse_set_status_to_join_me = document.createElement("a");
+//         vrcse_set_status_to_join_me.classList.add("btn");
+//         vrcse_set_status_to_join_me.classList.add("btn-outline-primary");
+//         vrcse_set_status_to_join_me.classList.add("mr-1");
+//         vrcse_set_status_to_join_me.style.width = "23.5%";
+//         vrcse_set_status_to_join_me.innerHTML = "<span class=\"css-aqta49\"><span class=\"join-me m-0\" title=\"join me\"></span></span>";
+//         vrcse_set_status_to_join_me.href = "/home/vrcse/status";
+//         vrcse_set_status_to_join_me.onclick = function (event) {
+//             let xmlhttp = new XMLHttpRequest();
+//             xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
+//             xmlhttp.setRequestHeader("Content-Type", "application/json");
+//             xmlhttp.send(JSON.stringify({"status":"join me"}));
+//             event.preventDefault();
+//             return false;
+//         }
+//         profilelink.parentElement.appendChild(vrcse_set_status_to_join_me);
 
-        let vrcse_set_status_to_ask_me = document.createElement("a");
-        vrcse_set_status_to_ask_me.classList.add("btn");
-        vrcse_set_status_to_ask_me.classList.add("btn-outline-primary");
-        vrcse_set_status_to_ask_me.classList.add("mr-1");
-        vrcse_set_status_to_ask_me.style.width = "23.5%";
-        vrcse_set_status_to_ask_me.innerHTML = "<span class=\"css-aqta49\"><span class=\"ask-me m-0\" title=\"ask me\"></span></span>";
-        vrcse_set_status_to_ask_me.href = "/home/vrcse/status";
-        vrcse_set_status_to_ask_me.onclick = function (event) {
-            let xmlhttp = new XMLHttpRequest();
-            xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
-            xmlhttp.setRequestHeader("Content-Type", "application/json");
-            xmlhttp.send(JSON.stringify({"status":"ask me"}));
-            event.preventDefault();
-            return false;
-        }
-        profilelink.parentElement.appendChild(vrcse_set_status_to_ask_me);
+//         let vrcse_set_status_to_ask_me = document.createElement("a");
+//         vrcse_set_status_to_ask_me.classList.add("btn");
+//         vrcse_set_status_to_ask_me.classList.add("btn-outline-primary");
+//         vrcse_set_status_to_ask_me.classList.add("mr-1");
+//         vrcse_set_status_to_ask_me.style.width = "23.5%";
+//         vrcse_set_status_to_ask_me.innerHTML = "<span class=\"css-aqta49\"><span class=\"ask-me m-0\" title=\"ask me\"></span></span>";
+//         vrcse_set_status_to_ask_me.href = "/home/vrcse/status";
+//         vrcse_set_status_to_ask_me.onclick = function (event) {
+//             let xmlhttp = new XMLHttpRequest();
+//             xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
+//             xmlhttp.setRequestHeader("Content-Type", "application/json");
+//             xmlhttp.send(JSON.stringify({"status":"ask me"}));
+//             event.preventDefault();
+//             return false;
+//         }
+//         profilelink.parentElement.appendChild(vrcse_set_status_to_ask_me);
 
-        let vrcse_set_status_to_busy = document.createElement("a");
-        vrcse_set_status_to_busy.classList.add("btn");
-        vrcse_set_status_to_busy.classList.add("btn-outline-primary");
-        vrcse_set_status_to_busy.style.width = "23.5%";
-        vrcse_set_status_to_busy.innerHTML = "<span class=\"css-aqta49\"><span class=\"busy m-0\" title=\"busy\"></span></span>";
-        vrcse_set_status_to_busy.href = "/home/vrcse/status";
-        vrcse_set_status_to_busy.onclick = function (event) {
-            let xmlhttp = new XMLHttpRequest();
-            xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
-            xmlhttp.setRequestHeader("Content-Type", "application/json");
-            xmlhttp.send(JSON.stringify({"status":"busy"}));
-            event.preventDefault();
-            return false;
-        }
-        profilelink.parentElement.appendChild(vrcse_set_status_to_busy);
+//         let vrcse_set_status_to_busy = document.createElement("a");
+//         vrcse_set_status_to_busy.classList.add("btn");
+//         vrcse_set_status_to_busy.classList.add("btn-outline-primary");
+//         vrcse_set_status_to_busy.style.width = "23.5%";
+//         vrcse_set_status_to_busy.innerHTML = "<span class=\"css-aqta49\"><span class=\"busy m-0\" title=\"busy\"></span></span>";
+//         vrcse_set_status_to_busy.href = "/home/vrcse/status";
+//         vrcse_set_status_to_busy.onclick = function (event) {
+//             let xmlhttp = new XMLHttpRequest();
+//             xmlhttp.open("PUT", "/api/1/users/" + window.vrcse.userInfo.id + "?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26");
+//             xmlhttp.setRequestHeader("Content-Type", "application/json");
+//             xmlhttp.send(JSON.stringify({"status":"busy"}));
+//             event.preventDefault();
+//             return false;
+//         }
+//         profilelink.parentElement.appendChild(vrcse_set_status_to_busy);
 
         // The Runs
         settingsBasedGoodies();
@@ -562,7 +562,7 @@ Get user's avatars, pagination by 25
                     elem.children[0].appendChild(btn_c);
 
                     elem.classList.add("mt-1");
-                    elem.getElementsByClassName("statusDescription")[0].classList.add("d-flex");
+                    // elem.getElementsByClassName("statusDescription")[0].classList.add("d-flex");
                 }
             }
         }
