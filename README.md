@@ -2,6 +2,9 @@
 OmissionCorkAngry for all your Angry Cork needs  
 [Download/Update here](https://raw.githubusercontent.com/ScruffyRules/OmissionCorkAngry/master/OmissionCorkAngry.user.js)
 
+## Now Archived!
+Might make a new version in a very later date
+
 ## How to use
 Download your respective browser's exention then hit [Download/Update here](https://raw.githubusercontent.com/ScruffyRules/OmissionCorkAngry/master/OmissionCorkAngry.user.js)
 *   Chrome: [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Violentmonkey](https://chrome.google.com/webstore/detail/violent-monkey/jinjaccalgkegednnccohejagnlnfdag)
